@@ -2,40 +2,99 @@
 
 ---
 
-## Phases
+## MVP 완료 현황
 
-| Phase | 내용 | 상태 |
-|-------|------|------|
-| 1 | UI-first mock implementation | ✅ |
-| 2 | Backend integration | ✅ |
-| 3 | Risk engine | ✅ |
-| 4 | Worker monitoring | ✅ (시뮬레이션) |
-| 5 | Demo polish + 배포 | ✅ |
+### Phase 1~5: 완료
+
+| Phase | 내용 | 상태 | 산출물 |
+|-------|------|------|--------|
+| 1 | UI 설계 + Mock 구현 | ✅ 완료 | 20+ React 컴포넌트, 다크 테마 관제 UI |
+| 2 | 백엔드 통합 | ✅ 완료 | FastAPI REST API + WebSocket, SQLite DB |
+| 3 | 위험 평가 엔진 | ✅ 완료 | 가중 점수제 + 급변 감지 + 복합 조건 |
+| 4 | 작업자 모니터링 | ✅ 완료 | 시뮬레이션 기반 (normal/inactive/fall_suspected) |
+| 5 | 데모 + 배포 | ✅ 완료 | 5가지 시나리오, GitHub Pages 정적 배포, MkDocs 문서 |
+
+### MVP 기능 체크리스트
+
+- [x] 6종 센서 실시간 모니터링 (O₂, H₂S, CO, VOC, 온도, 습도)
+- [x] 4단계 위험 등급 (SAFE/CAUTION/WARNING/CRITICAL)
+- [x] 가중 점수제 위험 평가 (O₂ 35%, 가스 30%, 환경 10%, 작업자 25%)
+- [x] 5분 이동평균 기반 급변 감지
+- [x] 실시간 시계열 차트 (최근 300 포인트)
+- [x] 이벤트 로그 자동 생성 및 표시
+- [x] 작업자 상태 모니터링 및 영상 패널
+- [x] 상태별 조치 가이드 패널
+- [x] 3개 구역 관리 (도장탱크, 화물창, 기관실)
+- [x] 5가지 데모 시나리오
+- [x] WebSocket 실시간 브로드캐스트
+- [x] GitHub Pages 정적 배포 (클라이언트 시뮬레이터)
+- [x] MkDocs Material 문서화
 
 ---
 
-## 2주 계획
+## Phase 6: 기능 고도화 (계획)
+
+| 기능 | 설명 | 우선순위 |
+|------|------|----------|
+| 실제 IoT 센서 연동 | MQTT/HTTP로 실제 센서 데이터 수신 | P0 |
+| OpenCV 영상 분석 | MediaPipe 기반 작업자 포즈 추정 및 쓰러짐 감지 | P0 |
+| 사용자 인증 | JWT 기반 로그인, 역할별 권한 관리 | P1 |
+| 알림 시스템 | SMS, 이메일, 푸시 알림 연동 | P1 |
+| 이벤트 필터링 UI | 구역별, 심각도별, 기간별 필터 | P1 |
+| 대시보드 커스터마이징 | 사용자별 위젯 배치 설정 | P2 |
+
+---
+
+## Phase 7: 확장 (계획)
+
+| 기능 | 설명 | 우선순위 |
+|------|------|----------|
+| 다중 사업장 통합 관제 | 여러 조선소의 데이터를 하나의 대시보드에서 | P1 |
+| 웨어러블 디바이스 | 작업자 심박수, GPS 위치 연동 | P1 |
+| AI 예측 모델 | LSTM/Transformer 기반 시계열 이상 예측 | P2 |
+| 모바일 앱 | React Native 기반 관리자 앱 | P2 |
+| 자동 환기 제어 | 위험 감지 시 환기 시스템 자동 작동 | P3 |
+| 규정 준수 보고서 | 산업안전보건법 기준 자동 보고서 생성 | P3 |
+
+---
+
+## 기술 부채
+
+| 항목 | 현재 상태 | 개선 방향 |
+|------|-----------|-----------|
+| 테스트 코드 | 없음 | pytest (백엔드), Vitest (프론트엔드) 도입 |
+| CI/CD | 없음 | GitHub Actions (lint, test, build, deploy) |
+| DB 마이그레이션 | 없음 (SQLModel auto-create) | Alembic 도입 |
+| 로깅 | `print()` 기반 | structlog 또는 loguru 도입 |
+| 에러 처리 | 기본 FastAPI 에러 | 커스텀 에러 핸들러, Sentry 연동 |
+| 환경 설정 | 하드코딩 (Settings 데이터클래스) | `.env` 파일 + pydantic-settings |
+| CORS | `allow_origins=["*"]` | 도메인 제한 |
+| 타입 안전성 | 양호 (TypeScript + Pydantic) | 100% strict mode |
+
+---
+
+## 2주 개발 일정 (실제 진행)
 
 ### Week 1
 
-| Day | 작업 |
-|-----|------|
-| 1 | UI 구조 설계 |
-| 2 | Dashboard 컴포넌트 |
-| 3 | 차트/로그/배너 |
-| 4 | Demo page |
-| 5 | Mock 상태관리 |
-| 6 | Backend scaffold |
-| 7 | Sensor/Events API |
+| Day | 작업 | 완료 |
+|-----|------|------|
+| 1 | 프로젝트 구조 설계, 기술 스택 확정 | ✅ |
+| 2 | Dashboard 컴포넌트 (Risk 게이지, 센서 카드) | ✅ |
+| 3 | 차트, 이벤트 로그, Alert 배너 | ✅ |
+| 4 | Demo 페이지, Events 페이지, Zones 페이지 | ✅ |
+| 5 | Zustand 스토어, 클라이언트 시뮬레이터 | ✅ |
+| 6 | FastAPI 백엔드 scaffolding | ✅ |
+| 7 | Sensor/Events/Zone API | ✅ |
 
 ### Week 2
 
-| Day | 작업 |
-|-----|------|
-| 8 | WebSocket |
-| 9 | Risk engine |
-| 10 | Event pipeline |
-| 11 | Worker status |
-| 12 | Polish/Animation |
-| 13 | 발표 리허설 |
-| 14 | 최종 수정 |
+| Day | 작업 | 완료 |
+|-----|------|------|
+| 8 | WebSocket 브로드캐스트 | ✅ |
+| 9 | Risk 평가 엔진 (가중 점수제) | ✅ |
+| 10 | 이벤트 파이프라인, 급변 감지 | ✅ |
+| 11 | Worker 상태 모니터링 | ✅ |
+| 12 | 애니메이션 Polish, Glow 효과 | ✅ |
+| 13 | GitHub Pages 배포, MkDocs 문서화 | ✅ |
+| 14 | 버그 수정, 최종 검증 | ✅ |

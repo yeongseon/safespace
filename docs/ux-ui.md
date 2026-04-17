@@ -1,65 +1,200 @@
 # UX/UI 설계
 
-프론트엔드는 단순 관리툴이 아니라 **실시간 산업 안전 관제 화면**처럼 보여야 한다.
+프론트엔드는 단순 관리툴이 아니라 **실시간 산업 안전 관제 화면**처럼 보여야 한다. 어두운 환경의 관제실에서 장시간 응시해도 피로가 적고, 위험 상태가 즉시 눈에 들어오는 UI를 목표로 한다.
 
 ---
 
-## Color System
+## 디자인 원칙
 
-| 상태 | 색상 | HEX | 용도 |
-|------|------|-----|------|
-| 🟢 SAFE | Green | `#22c55e` | 정상 상태 |
-| 🟡 CAUTION | Yellow | `#eab308` | 주의 상태 |
-| 🟠 WARNING | Orange | `#f97316` | 경고 상태 |
-| 🔴 CRITICAL | Red | `#ef4444` | 치명적 상태 |
-| Background | Dark Slate | `#0f172a` | 전체 배경 |
-| Surface | Deep Gray | `#1e293b` | 카드/패널 배경 |
+!!! tip "Principle 1: 상태가 숫자보다 먼저"
+    구체적인 수치를 읽기 전에 **색상과 크기만으로** 현재 상태를 파악할 수 있어야 한다.
 
----
+!!! tip "Principle 2: 중요한 변화는 움직임으로"
+    위험도 전환 시 카드, 배너, 로그, 게이지가 **동시에 반응**하여 주의를 끈다.
 
-## Dashboard Layout
+!!! tip "Principle 3: 모든 것이 살아있는 느낌"
+    실시간 수치, 차트, 로그, 연결 상태가 유기적으로 업데이트되어 시스템이 작동 중임을 보여준다.
 
-```
-┌─────────────────────────────────────────────────────┐
-│ TopBar: Logo │ Title │ Time │ Connection │ Zone     │
-├─────────────────────────────────────────────────────┤
-│ AlertBanner (WARNING/CRITICAL 시에만 표시)            │
-├──────────┬──────────────────┬───────────────────────┤
-│ Overall  │   Live Charts    │ Video Monitor          │
-│ Risk     │                  ├───────────────────────┤
-│ Card     │                  │ Action Guide           │
-├──────────┤  Zone Overview   ├───────────────────────┤
-│ Sensor   │                  │ Event Log              │
-│ Cards    │                  │                        │
-├──────────┤                  │                        │
-│ Worker   │                  │                        │
-└──────────┴──────────────────┴───────────────────────┘
-```
-
----
-
-## Key Components
-
-- **OverallRiskCard** — SVG 원형 게이지 (0~100), 상태별 Glow
-- **SensorMetricCard** — 큰 숫자 + 안전 범위 바 + 추세 화살표
-- **LiveTrendChart** — 최근 60개 데이터 포인트 라인 차트
-- **AlertBanner** — WARNING/CRITICAL 시 슬라이드 다운
-- **VideoMonitorPanel** — fall_suspected 시 빨간 오버레이
-- **EventLogPanel** — 새 이벤트 애니메이션 진입
-- **ActionGuidePanel** — 상태별 즉시 조치 권고
-
----
-
-## Interaction Principles
-
-!!! tip "Principle 1: State first, value second"
-    숫자보다 상태가 먼저 보여야 한다.
-
-!!! tip "Principle 2: Animate important transitions"
-    위험도 변경 시 카드/배너/로그가 함께 반응해야 한다.
-
-!!! tip "Principle 3: Everything should feel live"
-    실시간 수치, 차트, 로그, 연결상태가 유기적으로 업데이트되어야 한다.
-
-!!! tip "Principle 4: Demo must be easy"
+!!! tip "Principle 4: 데모는 쉬워야 한다"
     발표자가 버튼 몇 개만 눌러도 완성도 높은 시연이 가능해야 한다.
+
+---
+
+## 색상 시스템
+
+### 상태 색상
+
+4단계 위험 등급에 직접 매핑되는 색상 체계이다.
+
+| 상태 | 색상명 | HEX | RGB | 용도 |
+|------|--------|-----|-----|------|
+| 🟢 SAFE | Green | `#22c55e` | 34, 197, 94 | 정상 — 모든 센서 안전 범위 |
+| 🟡 CAUTION | Yellow | `#eab308` | 234, 179, 8 | 주의 — 일부 수치 관찰 필요 |
+| 🟠 WARNING | Orange | `#f97316` | 249, 115, 22 | 경고 — 즉시 확인 필요 |
+| 🔴 CRITICAL | Red | `#ef4444` | 239, 68, 68 | 치명 — 즉시 대응 필요 |
+
+### 배경 색상
+
+| 용도 | 색상명 | HEX | 설명 |
+|------|--------|-----|------|
+| 전체 배경 | Dark Slate | `#0f172a` | Tailwind `slate-900` 기반 |
+| 카드/패널 | Deep Gray | `#1e293b` | Tailwind `slate-800` 기반 |
+| 호버/강조 | Mid Gray | `#334155` | Tailwind `slate-700` 기반 |
+| 텍스트 (주) | White | `#f8fafc` | Tailwind `slate-50` |
+| 텍스트 (보조) | Muted | `#94a3b8` | Tailwind `slate-400` |
+
+### Glow 효과
+
+WARNING/CRITICAL 상태에서 카드 테두리에 상태 색상의 glow 효과를 적용한다. CSS `box-shadow`와 `@keyframes` 기반 펄스 애니메이션을 사용한다.
+
+```css
+/* globals.css 발췌 */
+.glow-warning { box-shadow: 0 0 15px rgba(249, 115, 22, 0.4); }
+.glow-critical { box-shadow: 0 0 20px rgba(239, 68, 68, 0.5); }
+```
+
+---
+
+## 타이포그래피
+
+| 용도 | 폰트 | 비고 |
+|------|------|------|
+| 본문 텍스트 | **Noto Sans KR** | Google Fonts, 한국어 최적화 |
+| 코드/수치 | **JetBrains Mono** | 모노스페이스, 숫자 가독성 |
+| 대형 수치 | 시스템 기본 + `tabular-nums` | 센서 카드의 큰 숫자 |
+
+센서 값은 `text-4xl font-bold tabular-nums` 스타일로 표시하여 숫자 변경 시 레이아웃이 흔들리지 않도록 한다.
+
+---
+
+## 대시보드 레이아웃
+
+```
+┌─────────────────────────────────────────────────────────┐
+│ TopBar: Logo │ SafeSpace │ 현재시각 │ 연결상태 │ 구역선택  │
+├─────────────────────────────────────────────────────────┤
+│ AlertBanner (WARNING/CRITICAL 시에만 슬라이드 다운)       │
+├────────────┬──────────────────────┬─────────────────────┤
+│ Overall    │                      │ Video Monitor       │
+│ Risk Card  │   Live Trend Chart   │                     │
+│ (SVG 게이지)│   (Recharts)         ├─────────────────────┤
+├────────────┤                      │ Action Guide        │
+│ Sensor     │                      │                     │
+│ Metric     ├──────────────────────├─────────────────────┤
+│ Cards (6종)│ Zone Overview Panel  │ Event Log           │
+│            │                      │ (최신 100건)         │
+├────────────┤                      │                     │
+│ Worker     │                      │                     │
+│ Status     │                      │                     │
+└────────────┴──────────────────────┴─────────────────────┘
+```
+
+### 반응형 동작
+
+- **데스크톱 (≥1280px)**: 3컬럼 레이아웃, 모든 패널 동시 표시
+- **태블릿 (768-1279px)**: 2컬럼, 일부 패널 스택
+- **모바일 (<768px)**: 1컬럼, 수직 스크롤 (MVP에서는 데스크톱 최적화 우선)
+
+---
+
+## 주요 컴포넌트
+
+### OverallRiskCard
+
+전체 위험도를 SVG 원형 게이지로 시각화한다.
+
+| 속성 | 설명 |
+|------|------|
+| **게이지** | SVG `circle` + `stroke-dasharray`로 0~100 범위 표현 |
+| **색상** | 현재 상태에 따라 게이지 색상 자동 변경 |
+| **애니메이션** | Framer Motion `animate`로 점수 변화 시 부드러운 전환 |
+| **레이블** | 중앙에 점수, 하단에 상태 텍스트 |
+
+### SensorMetricCard
+
+6종 센서 각각을 독립 카드로 표시한다.
+
+| 요소 | 설명 |
+|------|------|
+| 센서명 | O₂, H₂S, CO, VOC, Temperature, Humidity |
+| 큰 숫자 | `AnimatedValue` 컴포넌트로 숫자 변경 시 롤링 효과 |
+| 단위 | %, ppm, °C, % (센서별) |
+| 상태 색상 | 임계치 기반 StatusBadge 색상 표시 |
+
+### LiveTrendChart
+
+Recharts 기반 실시간 시계열 차트이다.
+
+| 설정 | 값 |
+|------|-----|
+| 데이터 포인트 | 최근 300개 (MAX_HISTORY) |
+| 갱신 주기 | 2초 |
+| 표시 센서 | O₂, H₂S, CO (선택적 토글) |
+| Y축 | 센서별 독립 스케일 |
+
+### AlertBanner
+
+WARNING 또는 CRITICAL 상태에서만 화면 상단에 표시된다.
+
+| 상태 | 동작 |
+|------|------|
+| SAFE/CAUTION | 숨김 (AnimatePresence exit) |
+| WARNING | 주황색 배경, 슬라이드 다운 |
+| CRITICAL | 빨간색 배경, 슬라이드 다운 + 펄스 애니메이션 |
+
+### VideoMonitorPanel
+
+작업자 모니터링 영상 패널이다. MVP에서는 시뮬레이션된 상태를 표시한다.
+
+| 상태 | 표시 |
+|------|------|
+| normal | 녹색 테두리, "정상" 표시 |
+| inactive | 노란색 테두리, "무동작 감지" 표시 |
+| fall_suspected | 빨간색 오버레이, "쓰러짐 의심" + confidence 표시 |
+
+### EventLogPanel
+
+시간순 이벤트 목록이다. 최신 이벤트가 상단에 위치한다.
+
+| 기능 | 설명 |
+|------|------|
+| 최대 표시 | 100건 |
+| 진입 애니메이션 | Framer Motion `initial/animate`로 새 이벤트 슬라이드 인 |
+| 색상 코딩 | severity에 따른 좌측 테두리 색상 |
+| 정보 | 시각, 구역, 유형, 메시지, 출처 |
+
+### ActionGuidePanel
+
+현재 위험 상태에 따른 즉시 조치 권고를 표시한다.
+
+| 상태 | 조치 가이드 예시 |
+|------|------------------|
+| SAFE | "모든 센서 정상 범위. 정상 작업 진행." |
+| CAUTION | "센서 수치 관찰 필요. 환기 상태 확인." |
+| WARNING | "작업 중단 준비. 환기 강화. 대피 경로 확인." |
+| CRITICAL | "즉시 작업 중단. 전원 대피. 구조팀 투입." |
+
+---
+
+## 애니메이션 명세
+
+Framer Motion을 활용한 상태 전환 애니메이션이다.
+
+| 대상 | 트리거 | 동작 | 지속 시간 |
+|------|--------|------|-----------|
+| Risk 게이지 | 점수 변경 | `spring` 물리 기반 전환 | ~300ms |
+| 센서 숫자 | 값 변경 | `AnimatedValue` 롤링 | 200ms |
+| Alert 배너 | 상태 변경 | 슬라이드 다운/업 | 300ms |
+| 이벤트 항목 | 새 이벤트 | 좌측에서 슬라이드 인 + 페이드 | 250ms |
+| 카드 Glow | 상태 변경 | 테두리 glow 트랜지션 | CSS transition 500ms |
+
+---
+
+## 페이지 구성
+
+| 경로 | 페이지 | 설명 |
+|------|--------|------|
+| `/` | Dashboard | 메인 관제 화면 — 모든 모니터링 정보 통합 |
+| `/demo` | Demo | 시나리오 컨트롤 패널 — 5가지 시나리오 버튼 |
+| `/events` | Events | 이벤트 로그 전체 목록 — 필터링, 검색 |
+| `/zones` | Zones | 구역별 상태 카드 — 3개 기본 구역 |
