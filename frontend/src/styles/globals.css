@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+:root {
+  --color-safe: #22c55e;
+  --color-caution: #eab308;
+  --color-warning: #f97316;
+  --color-critical: #ef4444;
+  --color-surface: #1e293b;
+  --color-surface-hover: #334155;
+  --color-bg: #0f172a;
+  --color-bg-deep: #020617;
+  --color-border: #334155;
+  --color-text: #f1f5f9;
+  --color-text-muted: #94a3b8;
+}
+
+@theme {
+  --color-safe: #22c55e;
+  --color-caution: #eab308;
+  --color-warning: #f97316;
+  --color-critical: #ef4444;
+  --color-surface: #1e293b;
+  --color-surface-hover: #334155;
+  --color-bg: #0f172a;
+  --color-bg-deep: #020617;
+  --color-border: #334155;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg-deep);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
+
+/* Status glow animations */
+@keyframes pulse-safe {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+  50% { box-shadow: 0 0 12px 4px rgba(34, 197, 94, 0.2); }
+}
+@keyframes pulse-warning {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.4); }
+  50% { box-shadow: 0 0 16px 6px rgba(249, 115, 22, 0.3); }
+}
+@keyframes pulse-critical {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
+  50% { box-shadow: 0 0 20px 8px rgba(239, 68, 68, 0.4); }
+}
+
+.glow-safe { animation: pulse-safe 2s ease-in-out infinite; }
+.glow-warning { animation: pulse-warning 1.5s ease-in-out infinite; }
+.glow-critical { animation: pulse-critical 1s ease-in-out infinite; }
+
+/* Alert banner slide */
+@keyframes slide-down {
+  from { transform: translateY(-100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.animate-slide-down { animation: slide-down 0.3s ease-out; }
