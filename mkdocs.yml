@@ -1,0 +1,72 @@
+site_name: SafeSpace Documentation
+site_description: IoT 센서 시계열 분석 및 영상 이상행동 탐지 기반 조선소 밀폐공간 안전 모니터링 시스템
+site_url: https://yeongseon.github.io/safespace/docs/
+repo_url: https://github.com/yeongseon/safespace
+repo_name: yeongseon/safespace
+
+theme:
+  name: material
+  language: ko
+  palette:
+    - scheme: slate
+      primary: deep purple
+      accent: green
+      toggle:
+        icon: material/brightness-4
+        name: 라이트 모드로 전환
+    - scheme: default
+      primary: deep purple
+      accent: green
+      toggle:
+        icon: material/brightness-7
+        name: 다크 모드로 전환
+  font:
+    text: Noto Sans KR
+    code: JetBrains Mono
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - content.code.copy
+    - toc.follow
+  icon:
+    repo: fontawesome/brands/github
+
+nav:
+  - 홈: index.md
+  - 프로젝트:
+    - 제품 요구사항 (PRD): prd.md
+    - UX/UI 설계: ux-ui.md
+  - 기술:
+    - 기술 설계: tech.md
+    - 프론트엔드 구조: frontend.md
+    - 백엔드 구조: backend.md
+    - API 명세: api.md
+    - 데이터 모델: data.md
+  - 운영:
+    - 위험 판정 규칙: risk-rules.md
+    - 데모 시나리오: demo.md
+  - 기타:
+    - 개발 로드맵: roadmap.md
+    - 발표 포인트: presentation.md
+
+markdown_extensions:
+  - tables
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed:
+      alternate_style: true
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/yeongseon/safespace
