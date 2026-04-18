@@ -19,7 +19,7 @@ export function OverallRiskCard() {
       STATUS_GLOW[overallStatus],
     )}>
       <div className="flex items-center justify-between w-full mb-1">
-        <span className="text-xs text-slate-500 uppercase tracking-widest font-medium">🎯 Overall Risk</span>
+        <span className="text-xs text-slate-500 uppercase tracking-widest font-medium">Overall Risk</span>
         <StatusBadge status={overallStatus} />
       </div>
 

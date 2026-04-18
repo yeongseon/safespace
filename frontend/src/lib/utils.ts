@@ -26,10 +26,10 @@ export function formatDateTime(iso: string): string {
 
 export function statusToLabel(s: Status): string {
   const labels: Record<Status, string> = {
-    SAFE: '✅ SAFE',
-    CAUTION: '⚠️ CAUTION',
-    WARNING: '🔶 WARNING',
-    CRITICAL: '🔴 CRITICAL',
+    SAFE: 'SAFE',
+    CAUTION: 'CAUTION',
+    WARNING: 'WARNING',
+    CRITICAL: 'CRITICAL',
   }
   return labels[s]
 }

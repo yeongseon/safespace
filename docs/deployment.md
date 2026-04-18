@@ -1,12 +1,12 @@
-# 🚀 배포 가이드
+# 배포 가이드
 
 SafeSpace의 배포 방법을 설명한다. GitHub Pages 정적 배포와 Full-Stack 배포 두 가지 모드를 지원한다.
 
 ---
 
-## 📋 배포 모드 비교
+## 배포 모드 비교
 
-| 📋 항목 | 🌐 GitHub Pages (정적) | ⚙️ Full-Stack (로컬/서버) |
+| 항목 | GitHub Pages (정적) | Full-Stack (로컬/서버) |
 |------|-------------------|----------------------|
 | 백엔드 | 불필요 | FastAPI + SQLite |
 | 데이터 소스 | 클라이언트 시뮬레이터 | 서버 시뮬레이터 (향후 실제 센서) |
@@ -17,9 +17,9 @@ SafeSpace의 배포 방법을 설명한다. GitHub Pages 정적 배포와 Full-S
 
 ---
 
-## 🌐 GitHub Pages 배포
+## GitHub Pages 배포
 
-### 📋 사전 준비
+### 사전 준비
 
 ```bash
 # 프론트엔드 빌드
@@ -33,7 +33,7 @@ pip install mkdocs-material
 mkdocs build     # → site/ 디렉터리 생성
 ```
 
-### 🚀 배포 절차
+### 배포 절차
 
 ```bash
 # 임시 디렉터리에 배포 파일 준비
@@ -56,7 +56,7 @@ git checkout main
 git branch -D gh-pages-deploy
 ```
 
-### ⚙️ GitHub Pages 설정
+### GitHub Pages 설정
 
 1. GitHub 저장소 → Settings → Pages
 2. Source: **Deploy from a branch**
@@ -65,10 +65,10 @@ git branch -D gh-pages-deploy
 
 배포 후 1~2분 내에 접근 가능:
 
-- 🎮 데모: `https://username.github.io/safespace/`
-- 📝 문서: `https://username.github.io/safespace/docs/`
+- 데모: `https://username.github.io/safespace/`
+- 문서: `https://username.github.io/safespace/docs/`
 
-### ⚙️ Vite base 설정
+### Vite base 설정
 
 `vite.config.ts`에서 `base`를 저장소 이름으로 설정해야 한다:
 
@@ -84,9 +84,9 @@ export default defineConfig({
 
 ---
 
-## 💻 로컬 개발 모드
+## 로컬 개발 모드
 
-### 🖥️ 프론트엔드 + ⚙️ 백엔드 동시 실행
+### 프론트엔드 +  백엔드 동시 실행
 
 === "터미널 1: 백엔드"
 
@@ -116,7 +116,7 @@ server: {
 }
 ```
 
-### 🖥️ 프론트엔드 단독 실행 (정적 모드)
+### 프론트엔드 단독 실행 (정적 모드)
 
 백엔드 없이 프론트엔드만 실행해도 클라이언트 시뮬레이터가 동작한다.
 
@@ -128,12 +128,12 @@ npm run dev
 
 ---
 
-## 🚀 프로덕션 배포 (참고)
+## 프로덕션 배포 (참고)
 
 !!! info "MVP 범위 외"
     프로덕션 배포는 현재 MVP 범위에 포함되지 않지만, 향후 확장을 위한 참고 사항이다.
 
-### 🏗️ 권장 구성
+### 권장 구성
 
 ```
 [Client Browser]
@@ -151,7 +151,7 @@ npm run dev
 [PostgreSQL]  (SQLite → PostgreSQL 마이그레이션)
 ```
 
-### ⚙️ 환경 변수 (향후)
+### 환경 변수 (향후)
 
 ```bash
 DATABASE_URL=postgresql://user:pass@localhost:5432/safespace
@@ -160,7 +160,7 @@ SENSOR_INTERVAL=2
 SECRET_KEY=your-secret-key
 ```
 
-### 🚀 CI/CD 파이프라인 (향후)
+### CI/CD 파이프라인 (향후)
 
 ```mermaid
 graph LR

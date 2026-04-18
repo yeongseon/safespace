@@ -28,20 +28,20 @@ export function WorkerStatusCard() {
       </div>
 
       <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-        <span className="text-xs text-slate-500 uppercase tracking-wider">👷 Worker Status</span>
+        <span className="text-xs text-slate-500 uppercase tracking-wider">Worker Status</span>
         <span
           className={cn(
             'text-sm font-semibold',
             isFall ? 'text-critical' : isInactive ? 'text-slate-500' : 'text-safe',
           )}
         >
-          {isFall ? '🚨 Fall Suspected' : isInactive ? '⏸️ Inactive' : '✅ Normal'}
+          {isFall ? 'Fall Suspected' : isInactive ? 'Inactive' : 'Normal'}
         </span>
       </div>
 
       {workerState && (
         <div className="text-right shrink-0">
-          <div className="text-xs text-slate-500">🎯 Confidence</div>
+          <div className="text-xs text-slate-500">Confidence</div>
           <div className="text-sm font-mono text-slate-300">
             {Math.round(workerState.confidence * 100)}%
           </div>

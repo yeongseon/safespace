@@ -26,8 +26,8 @@ export function LiveTrendChart() {
   return (
     <div className="bg-surface border border-border/50 rounded-xl p-4">
       <div className="flex items-center justify-between mb-3">
-        <span className="text-xs text-slate-500 uppercase tracking-widest font-medium">⚡ Sensor Trend</span>
-        <span className="text-xs text-slate-600">📈 Last 60 readings</span>
+        <span className="text-xs text-slate-500 uppercase tracking-widest font-medium">Sensor Trend</span>
+        <span className="text-xs text-slate-600">Last 60 readings</span>
       </div>
       <ResponsiveContainer width="100%" height={200}>
         <LineChart data={data} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
@@ -71,7 +71,7 @@ export function LiveTrendChart() {
             yAxisId="left"
             type="monotone"
             dataKey="oxygen"
-            name="🫁 O₂"
+            name="O₂"
             stroke="#22c55e"
             strokeWidth={2}
             dot={false}
@@ -81,7 +81,7 @@ export function LiveTrendChart() {
             yAxisId="right"
             type="monotone"
             dataKey="h2s"
-            name="☠️ H₂S"
+            name="H₂S"
             stroke="#f97316"
             strokeWidth={1.5}
             dot={false}
@@ -91,7 +91,7 @@ export function LiveTrendChart() {
             yAxisId="right"
             type="monotone"
             dataKey="co"
-            name="💨 CO"
+            name="CO"
             stroke="#ef4444"
             strokeWidth={1.5}
             dot={false}
@@ -101,7 +101,7 @@ export function LiveTrendChart() {
             yAxisId="right"
             type="monotone"
             dataKey="voc"
-            name="🧪 VOC"
+            name="VOC"
             stroke="#eab308"
             strokeWidth={1.5}
             dot={false}

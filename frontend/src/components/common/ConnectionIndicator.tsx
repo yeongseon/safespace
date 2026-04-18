@@ -8,9 +8,9 @@ const STATUS_DOT: Record<string, string> = {
 }
 
 const STATUS_LABEL: Record<string, string> = {
-  connected: '🟢 Live',
-  reconnecting: '🟡 Reconnecting',
-  offline: '🔴 Offline',
+  connected: 'Live',
+  reconnecting: 'Reconnecting',
+  offline: 'Offline',
 }
 
 export function ConnectionIndicator() {

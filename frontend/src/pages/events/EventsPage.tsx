@@ -11,11 +11,11 @@ import { ZONE_LABELS } from '@/lib/constants'
 const SEVERITIES: (Status | 'ALL')[] = ['ALL', 'SAFE', 'CAUTION', 'WARNING', 'CRITICAL']
 
 const SEVERITY_LABELS: Record<Status | 'ALL', string> = {
-  ALL: '📋 ALL',
-  SAFE: '✅ SAFE',
-  CAUTION: '⚠️ CAUTION',
-  WARNING: '🔶 WARNING',
-  CRITICAL: '🔴 CRITICAL',
+  ALL: 'ALL',
+  SAFE: 'SAFE',
+  CAUTION: 'CAUTION',
+  WARNING: 'WARNING',
+  CRITICAL: 'CRITICAL',
 }
 
 export function EventsPage() {
@@ -41,7 +41,7 @@ export function EventsPage() {
             <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-border/60 bg-bg-deep/70 px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-slate-500">
               <BellRing size={12} /> Event Intelligence
             </div>
-            <h1 className="text-xl font-bold text-slate-100 tracking-tight">📋 이벤트 타임라인</h1>
+            <h1 className="text-xl font-bold text-slate-100 tracking-tight">이벤트 타임라인</h1>
             <p className="mt-1 text-sm text-slate-400">센서 이상, 작업자 상태 변화, 시스템 경보를 시간순으로 검토해 현장 흐름을 빠르게 파악합니다.</p>
           </div>
           <div className="rounded-xl border border-border/60 bg-bg-deep/70 px-3 py-2 text-right">
@@ -72,7 +72,7 @@ export function EventsPage() {
           onChange={(e) => setZoneFilter(e.target.value)}
           className="bg-surface border border-border text-slate-300 text-xs rounded px-2 py-1 focus:outline-none"
         >
-          <option value="ALL">🏭 All Zones</option>
+          <option value="ALL">All Zones</option>
           {Object.entries(ZONE_LABELS).map(([id, label]) => (
             <option key={id} value={id}>{label}</option>
           ))}
@@ -80,11 +80,11 @@ export function EventsPage() {
       </div>
 
       {isLoading ? (
-        <div className="text-xs text-slate-600">⏳ Loading events...</div>
+        <div className="text-xs text-slate-600">Loading events...</div>
       ) : (
         <div className="bg-surface border border-border/50 rounded-xl overflow-hidden">
           {events.length === 0 ? (
-             <div className="px-4 py-8 text-center text-sm text-slate-600">📭 No events match the current filters.</div>
+             <div className="px-4 py-8 text-center text-sm text-slate-600">No events match the current filters.</div>
           ) : (
             events.map((event, i) => (
               <motion.div

@@ -8,9 +8,9 @@ import { STATUS_GLOW } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 
 const ZONE_TYPE_LABELS: Record<string, string> = {
-  paint_tank: '🚢 Paint Tank',
-  cargo_hold: '📦 Cargo Hold',
-  engine_room: '⚙️ Engine Room',
+  paint_tank: 'Paint Tank',
+  cargo_hold: 'Cargo Hold',
+  engine_room: 'Engine Room',
 }
 
 export function ZonesPage() {
@@ -34,7 +34,7 @@ export function ZonesPage() {
             <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-border/60 bg-bg-deep/70 px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-slate-500">
               <Radar size={12} /> Zone Coverage
             </div>
-            <h1 className="text-xl font-bold text-slate-100 tracking-tight">🏭 구역 모니터링 현황</h1>
+            <h1 className="text-xl font-bold text-slate-100 tracking-tight">구역 모니터링 현황</h1>
             <p className="mt-1 text-sm text-slate-400">현장 구역별 위험 상태와 위치 정보를 빠르게 확인할 수 있도록 운영 시야를 정리했습니다.</p>
           </div>
           <div className="rounded-xl border border-border/60 bg-bg-deep/70 px-3 py-2 text-right">
@@ -45,7 +45,7 @@ export function ZonesPage() {
       </div>
 
       {isLoading ? (
-        <div className="text-xs text-slate-600">⏳ Loading zones...</div>
+        <div className="text-xs text-slate-600">Loading zones...</div>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {zones.map((zone) => (

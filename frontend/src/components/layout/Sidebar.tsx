@@ -4,10 +4,10 @@ import { LayoutDashboard, Play, Clock, Map } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const NAV_ITEMS = [
-  { icon: LayoutDashboard, label: '📊 Dashboard', to: '/' },
-  { icon: Play, label: '🎮 Demo', to: '/demo' },
-  { icon: Clock, label: '📋 Events', to: '/events' },
-  { icon: Map, label: '🏭 Zones', to: '/zones' },
+  { icon: LayoutDashboard, label: 'Dashboard', to: '/' },
+  { icon: Play, label: 'Demo', to: '/demo' },
+  { icon: Clock, label: 'Events', to: '/events' },
+  { icon: Map, label: 'Zones', to: '/zones' },
 ]
 
 export function Sidebar() {

@@ -24,36 +24,36 @@ const SCENARIOS: {
   {
     id: 'safe',
     icon: <Shield size={24} />,
-    title: '✅ Safe Baseline',
-    description: '🟢 Normal operating conditions. All sensors within safe parameters.',
+    title: 'Safe Baseline',
+    description: 'Normal operating conditions. All sensors within safe parameters.',
     color: 'safe',
   },
   {
     id: 'oxygen_drop',
     icon: <Wind size={24} />,
-    title: '🫁 Oxygen Depletion',
-    description: '⚠️ O₂ levels dropping below safe threshold (19.5%). Ventilation failure scenario.',
+    title: 'Oxygen Depletion',
+    description: 'O₂ levels dropping below safe threshold (19.5%). Ventilation failure scenario.',
     color: 'warning',
   },
   {
     id: 'gas_leak',
     icon: <Flame size={24} />,
-    title: '☠️ Gas Leak',
-    description: '🚨 H₂S and CO levels rising. Toxic gas infiltration from adjacent area.',
+    title: 'Gas Leak',
+    description: 'H₂S and CO levels rising. Toxic gas infiltration from adjacent area.',
     color: 'critical',
   },
   {
     id: 'worker_collapse',
     icon: <UserX size={24} />,
-    title: '👷 Worker Collapse',
-    description: '🚨 Worker motion ceases — fall or incapacitation detected by camera system.',
+    title: 'Worker Collapse',
+    description: 'Worker motion ceases — fall or incapacitation detected by camera system.',
     color: 'critical',
   },
   {
     id: 'multi_risk',
     icon: <AlertTriangle size={24} />,
-    title: '🚨 Multi-Risk Event',
-    description: '⚠️ Combined scenario: gas leak, low oxygen, and worker distress simultaneously.',
+    title: 'Multi-Risk Event',
+    description: 'Combined scenario: gas leak, low oxygen, and worker distress simultaneously.',
     color: 'critical',
   },
 ]
@@ -107,7 +107,7 @@ export function DemoPage() {
               <Sparkles size={12} />
               Demo Mission Control
             </div>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-100">🎮 시뮬레이션 제어센터</h1>
+            <h1 className="text-2xl font-bold tracking-tight text-slate-100">시뮬레이션 제어센터</h1>
             <p className="mt-2 text-sm leading-6 text-slate-400">
               작업자 이상, 가스 누출, 산소 저하 등 주요 위험 시나리오를 즉시 실행해 대시보드의 반응과 경보 흐름을 실시간으로 확인합니다.
             </p>
@@ -201,7 +201,7 @@ export function DemoPage() {
                   <span className="text-sm font-semibold text-slate-100">{s.title}</span>
                   {isActive && (
                     <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${cls.text} ${cls.activeBorder} ${cls.activeBg}`}>
-                      ▶️ Active
+                      Active
                     </span>
                   )}
                 </div>
@@ -219,7 +219,7 @@ export function DemoPage() {
           className="flex items-center gap-2 text-xs text-slate-400 hover:text-slate-200 transition-colors"
         >
           <RotateCcw size={13} />
-          ⏹️ 안전 기준 상태로 재설정
+          안전 기준 상태로 재설정
         </button>
       </div>
     </div>
