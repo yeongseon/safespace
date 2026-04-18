@@ -1,10 +1,10 @@
-# 아키텍처
+# 🏗️ 아키텍처
 
 SafeSpace의 시스템 아키텍처, 데이터 흐름, 모듈 의존성을 설명한다.
 
 ---
 
-## 시스템 개요
+## 📝 시스템 개요
 
 SafeSpace는 두 가지 실행 모드를 지원한다:
 
@@ -13,7 +13,7 @@ SafeSpace는 두 가지 실행 모드를 지원한다:
 
 ---
 
-## 시스템 컨텍스트
+## 🗺️ 시스템 컨텍스트
 
 ```mermaid
 graph TB
@@ -47,7 +47,7 @@ graph TB
 
 ---
 
-## Full-Stack 모드 아키텍처
+## ⚙️ Full-Stack 모드 아키텍처
 
 ```mermaid
 graph TB
@@ -97,7 +97,7 @@ graph TB
 
 ---
 
-## Static 모드 아키텍처
+## 🌐 Static 모드 아키텍처
 
 ```mermaid
 graph LR
@@ -118,9 +118,9 @@ graph LR
 
 ---
 
-## 데이터 흐름
+## 📊 데이터 흐름
 
-### 센서 데이터 생성 → UI 표시
+### 📊 센서 데이터 생성 → UI 표시
 
 ```mermaid
 sequenceDiagram
@@ -154,7 +154,7 @@ sequenceDiagram
     end
 ```
 
-### 시나리오 활성화 흐름
+### 🎮 시나리오 활성화 흐름
 
 ```mermaid
 sequenceDiagram
@@ -177,9 +177,9 @@ sequenceDiagram
 
 ---
 
-## 모듈 의존성
+## 🔗 모듈 의존성
 
-### 백엔드 모듈 관계
+### ⚙️ 백엔드 모듈 관계
 
 ```mermaid
 graph TD
@@ -211,7 +211,7 @@ graph TD
     style MODELS fill:#69f,stroke:#333
 ```
 
-### 프론트엔드 모듈 관계
+### 🖥️ 프론트엔드 모듈 관계
 
 ```mermaid
 graph TD
@@ -251,7 +251,7 @@ graph TD
 
 ---
 
-## 상태 관리 아키텍처
+## 📊 상태 관리 아키텍처
 
 ```mermaid
 graph LR
@@ -300,17 +300,17 @@ graph LR
 
 ---
 
-## 이벤트 구동 아키텍처
+## 🚨 이벤트 구동 아키텍처
 
 시스템은 이벤트 구동(event-driven) 패턴을 따른다.
 
-| 이벤트 | 발생 시점 | 소비자 |
+| 🚨 이벤트 | ⏱️ 발생 시점 | 👥 소비자 |
 |--------|-----------|--------|
 | `sensor_update` | 매 2초, 구역별 | 센서 카드, 차트, 히스토리 |
 | `status_update` | 매 2초, 구역별 | 리스크 게이지, 배너, 상태 뱃지 |
 | `event_created` | 상태 전환 시 | 이벤트 로그, 조치 가이드 |
 
-### 이벤트 생성 조건
+### ⚠️ 이벤트 생성 조건
 
 ```mermaid
 graph TD
@@ -325,9 +325,9 @@ graph TD
 
 ---
 
-## 확장 포인트
+## 🗺️ 확장 포인트
 
-| 확장 영역 | 현재 | 확장 방법 |
+| 🗺️ 확장 영역 | 📍 현재 | 🚀 확장 방법 |
 |-----------|------|-----------|
 | 데이터 소스 | DemoSimulator | MQTT 브릿지 → 실제 IoT 센서 |
 | 영상 분석 | 시뮬레이션 | MediaPipe Pose → WorkerState API |

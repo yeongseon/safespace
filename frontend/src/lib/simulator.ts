@@ -8,9 +8,9 @@ let eventCounter = 0
 let lastScenarioEventType = ''
 
 const ZONES: Zone[] = [
-  { id: 'paint-tank-a', name: 'Paint Tank A', type: 'paint_tank', status: 'SAFE', location_label: 'Dock 1 / Paint Tank A' },
-  { id: 'cargo-hold-b', name: 'Cargo Hold B', type: 'cargo_hold', status: 'SAFE', location_label: 'Dock 2 / Cargo Hold B' },
-  { id: 'engine-room-c', name: 'Engine Room C', type: 'engine_room', status: 'SAFE', location_label: 'Vessel 7 / Engine Room C' },
+  { id: 'paint-tank-a', name: '🚢 Paint Tank A', type: 'paint_tank', status: 'SAFE', location_label: '📍 Dock 1 / Paint Tank A' },
+  { id: 'cargo-hold-b', name: '📦 Cargo Hold B', type: 'cargo_hold', status: 'SAFE', location_label: '📍 Dock 2 / Cargo Hold B' },
+  { id: 'engine-room-c', name: '⚙️ Engine Room C', type: 'engine_room', status: 'SAFE', location_label: '📍 Vessel 7 / Engine Room C' },
 ]
 
 function rand(min: number, max: number) {
@@ -54,9 +54,9 @@ function generateWorker(scenario: Scenario, elapsed: number): WorkerState {
 }
 
 function oxygenRisk(o2: number): [number, string] {
-  if (o2 >= 19.5) return [0, 'oxygen normal']
-  if (o2 >= 18.0) { const s = 40 + ((19.5 - o2) / 1.5) * 30; return [clamp(s), 'oxygen trending low'] }
-  return [clamp(75 + ((18 - o2) / 2) * 25), 'oxygen critically low']
+  if (o2 >= 19.5) return [0, '🫁 oxygen normal']
+  if (o2 >= 18.0) { const s = 40 + ((19.5 - o2) / 1.5) * 30; return [clamp(s), '⚠️ oxygen trending low'] }
+  return [clamp(75 + ((18 - o2) / 2) * 25), '🔴 oxygen critically low']
 }
 
 function gasRisk(v: number, safeMax: number, warnMax: number): number {
@@ -66,9 +66,9 @@ function gasRisk(v: number, safeMax: number, warnMax: number): number {
 }
 
 function workerRisk(w: WorkerState): [number, string] {
-  if (w.worker_status === 'normal') return [0, 'worker normal']
-  if (w.worker_status === 'fall_suspected') return [90, 'worker collapse suspected']
-  return [35, `worker state ${w.worker_status}`]
+  if (w.worker_status === 'normal') return [0, '👷 worker normal']
+  if (w.worker_status === 'fall_suspected') return [90, '🚨 worker collapse suspected']
+  return [35, `👷 worker state ${w.worker_status}`]
 }
 
 function mapStatus(score: number): Status {
@@ -91,11 +91,11 @@ function evaluateRisk(sensor: SensorData, worker: WorkerState): RiskState {
   const total = clamp(combined)
   const msgs: string[] = []
   if (o2Score > 0) msgs.push(o2Msg)
-  if (h2sScore >= 35) msgs.push('elevated H2S')
-  if (coScore >= 35) msgs.push('elevated CO')
-  if (vocScore >= 35) msgs.push('elevated VOC')
+  if (h2sScore >= 35) msgs.push('☠️ elevated H₂S')
+  if (coScore >= 35) msgs.push('💨 elevated CO')
+  if (vocScore >= 35) msgs.push('🧪 elevated VOC')
   if (wScore > 0) msgs.push(wMsg)
-  const summary = msgs.length > 0 ? msgs.join(', ') : 'all monitored conditions are within safe operating range'
+  const summary = msgs.length > 0 ? msgs.join(', ') : '✅ all monitored conditions are within safe operating range'
 
   return { overall_status: mapStatus(total), risk_score: +total.toFixed(1), summary, timestamp: sensor.timestamp }
 }
@@ -122,7 +122,7 @@ function tick() {
     const evtType = `scenario_${activeScenario}`
     if (lastScenarioEventType !== evtType) {
       lastScenarioEventType = evtType
-      const evt: EventLog = { id: ++eventCounter, zone_id: 'paint-tank-a', timestamp: ts, severity: risk.overall_status, event_type: evtType, message: `Demo scenario ${activeScenario} activated`, source: 'demo_simulator' }
+       const evt: EventLog = { id: ++eventCounter, zone_id: 'paint-tank-a', timestamp: ts, severity: risk.overall_status, event_type: evtType, message: `🎮 Demo scenario ${activeScenario} activated`, source: 'demo_simulator' }
       store.addEvent(evt)
     }
     if (risk.overall_status === 'WARNING' || risk.overall_status === 'CRITICAL') {

@@ -25,7 +25,13 @@ export function formatDateTime(iso: string): string {
 }
 
 export function statusToLabel(s: Status): string {
-  return s.charAt(0) + s.slice(1).toLowerCase()
+  const labels: Record<Status, string> = {
+    SAFE: '✅ SAFE',
+    CAUTION: '⚠️ CAUTION',
+    WARNING: '🔶 WARNING',
+    CRITICAL: '🔴 CRITICAL',
+  }
+  return labels[s]
 }
 
 export function getSensorStatus(

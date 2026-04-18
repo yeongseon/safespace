@@ -1,10 +1,10 @@
-# 백엔드 구조
+# ⚙️ 백엔드 구조
 
 FastAPI 기반의 실시간 데이터 파이프라인이다. 센서 데이터 생성, 위험 평가, 이벤트 관리, WebSocket 브로드캐스트를 담당한다.
 
 ---
 
-## 디렉터리 구조
+## 🏗️ 디렉터리 구조
 
 ```
 backend/app/
@@ -53,7 +53,7 @@ backend/app/
 
 ---
 
-## 애플리케이션 생명주기
+## 🔄 애플리케이션 생명주기
 
 FastAPI의 `lifespan` 컨텍스트 매니저로 시작/종료를 관리한다.
 
@@ -77,9 +77,9 @@ sequenceDiagram
     Note over App: 서버 종료
 ```
 
-### 기본 구역 시드 데이터
+### 📋 기본 구역 시드 데이터
 
-| name | type | location_label |
+| 🏷️ name | 📋 type | 📍 location_label |
 |------|------|----------------|
 | `paint-tank-a` | `paint_tank` | Dock 1 / Paint Tank A |
 | `cargo-hold-b` | `cargo_hold` | Dock 2 / Cargo Hold B |
@@ -87,11 +87,11 @@ sequenceDiagram
 
 ---
 
-## 센서 루프
+## 📊 센서 루프
 
 `sensor_loop()`는 백엔드의 핵심 루프이다. 2초(`settings.sensor_interval_seconds`) 간격으로 모든 구역을 순회하며 데이터를 생성한다.
 
-### 루프 동작 (구역당)
+### ⚙️ 루프 동작 (구역당)
 
 ```mermaid
 graph TD
@@ -108,7 +108,7 @@ graph TD
     J --> K[WebSocket broadcast: event_created]
 ```
 
-### 에러 처리
+### ⚠️ 에러 처리
 
 센서 루프는 `try/except`로 감싸져 있어 개별 루프 실패 시에도 다음 주기에 정상 동작한다.
 
@@ -124,26 +124,26 @@ async def sensor_loop() -> None:
 
 ---
 
-## DemoSimulator
+## 🎮 DemoSimulator
 
 시나리오 기반 센서 데이터 생성기이다. `asyncio.Lock`으로 동시성을 보장한다.
 
-### 시나리오 적용 규칙
+### 📌 시나리오 적용 규칙
 
 !!! warning "중요"
     시나리오는 **`paint-tank-a` 구역에만** 적용된다. 다른 구역은 항상 safe 베이스라인을 생성한다.
 
-### 구역별 환경 오프셋
+### 🌡️ 구역별 환경 오프셋
 
-| 구역 | 온도 오프셋 | 습도 오프셋 | 설명 |
+| 📍 구역 | 🌡️ 온도 오프셋 | 💧 습도 오프셋 | 📝 설명 |
 |------|------------|------------|------|
 | paint-tank-a | +1.8°C | +4.0% | 도장 작업 열기 |
 | cargo-hold-b | -1.4°C | +7.0% | 선창 습기 |
 | engine-room-c | +5.5°C | -6.0% | 기관실 고온 |
 
-### Safe 베이스라인 값
+### ✅ Safe 베이스라인 값
 
-| 센서 | 기본값 | 랜덤 범위 |
+| 📊 센서 | 📋 기본값 | 🎲 랜덤 범위 |
 |------|--------|-----------|
 | O₂ | 20.8% | ±0.12~0.06 |
 | H₂S | 1.0 ppm | ±0.2~0.3 |
@@ -154,7 +154,7 @@ async def sensor_loop() -> None:
 
 ---
 
-## 설정 (Settings)
+## ⚙️ 설정 (Settings)
 
 `core/config.py`의 `Settings` 데이터클래스로 모든 설정을 관리한다.
 
@@ -179,17 +179,17 @@ class Settings:
 
 ---
 
-## WebSocket 관리
+## 📡 WebSocket 관리
 
 `core/websocket.py`의 `ConnectionManager`가 모든 WebSocket 연결을 관리한다.
 
-| 메서드 | 동작 |
+| ⚙️ 메서드 | 📝 동작 |
 |--------|------|
 | `connect(ws)` | 연결 수락 후 `active_connections` 목록에 추가 |
 | `disconnect(ws)` | 목록에서 제거 |
 | `broadcast(type, data)` | 모든 연결에 `{"type": ..., "data": ...}` 전송. 실패한 연결은 자동 정리 |
 
-### 메시지 형식
+### 📨 메시지 형식
 
 ```json
 {
@@ -205,11 +205,11 @@ class Settings:
 
 ---
 
-## RuntimeState 싱글턴
+## 🗄️ RuntimeState 싱글턴
 
 `main_state.py`에 정의된 런타임 상태 컨테이너이다.
 
-| 필드 | 타입 | 용도 |
+| 📋 필드 | ⚙️ 타입 | 🎯 용도 |
 |------|------|------|
 | `sensor_task` | `asyncio.Task \| None` | 센서 루프 태스크 참조 |
 | `websocket_manager` | `ConnectionManager` | WebSocket 브로드캐스터 |
@@ -217,7 +217,7 @@ class Settings:
 
 ---
 
-## CORS 설정
+## 🔐 CORS 설정
 
 개발 및 데모 편의를 위해 모든 출처를 허용한다.
 
@@ -236,7 +236,7 @@ app.add_middleware(
 
 ---
 
-## 라우터 등록
+## 🌐 라우터 등록
 
 ```python
 app.include_router(sensor_router)   # /api/sensors/*

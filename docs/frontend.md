@@ -1,10 +1,10 @@
-# 프론트엔드 구조
+# 🖥️ 프론트엔드 구조
 
 React 19 + TypeScript 기반의 실시간 산업 관제 대시보드이다. Vite 8로 빌드하며, Tailwind CSS v4의 `@theme` 시스템으로 디자인 토큰을 관리한다.
 
 ---
 
-## 디렉터리 구조
+## 🏗️ 디렉터리 구조
 
 ```
 frontend/src/
@@ -64,11 +64,11 @@ frontend/src/
 
 ---
 
-## 라우팅
+## 🗺️ 라우팅
 
 `HashRouter`를 사용하여 GitHub Pages에서 클라이언트 사이드 라우팅을 지원한다.
 
-| 경로 | 컴포넌트 | 설명 |
+| 📡 경로 | 🧩 컴포넌트 | 📝 설명 |
 |------|----------|------|
 | `/#/` | `DashboardPage` | 메인 관제 대시보드 |
 | `/#/demo` | `DemoPage` | 데모 시나리오 컨트롤 |
@@ -91,11 +91,11 @@ frontend/src/
 
 ---
 
-## 상태 관리 (Zustand Store)
+## 📊 상태 관리 (Zustand Store)
 
 Zustand 5.0 기반 단일 글로벌 스토어이다. 서버 상태와 UI 상태를 통합 관리한다.
 
-### 스토어 구조
+### 🗄️ 스토어 구조
 
 ```typescript
 interface SafeSpaceState {
@@ -140,9 +140,9 @@ interface SafeSpaceState {
 }
 ```
 
-### 데이터 보관 정책
+### 📋 데이터 보관 정책
 
-| 데이터 | 최대 보관 | 정책 |
+| 📊 데이터 | 📦 최대 보관 | ⚙️ 정책 |
 |--------|-----------|------|
 | `sensorHistory` | 300건 | FIFO — `slice(-MAX_HISTORY)` |
 | `events` | 100건 | FIFO — 새 이벤트를 앞에 추가 후 `slice(0, 100)` |
@@ -151,7 +151,7 @@ interface SafeSpaceState {
 
 ---
 
-## TypeScript 인터페이스
+## ⚙️ TypeScript 인터페이스
 
 `features/types.ts`에 정의된 도메인 타입이다.
 
@@ -221,13 +221,13 @@ interface SafeSpaceState {
 
 ---
 
-## 클라이언트 사이드 시뮬레이터
+## 🌐 클라이언트 사이드 시뮬레이터
 
 `lib/simulator.ts`는 GitHub Pages 정적 배포를 위해 백엔드 로직을 TypeScript로 완전히 포팅한 모듈이다.
 
-### 구조
+### 🏗️ 구조
 
-| 함수 | 역할 |
+| ⚙️ 함수 | 🎯 역할 |
 |------|------|
 | `startSimulator()` | 연결 상태 설정, 구역 초기화, 2초 간격 `tick()` 시작 |
 | `stopSimulator()` | 인터벌 정리 |
@@ -237,7 +237,7 @@ interface SafeSpaceState {
 | `evaluateRisk(sensor, worker)` | 가중 점수 계산 (백엔드 rules.py 미러링) |
 | `api` 객체 | `getDashboardSummary`, `getSensorsLatest` 등 REST API 호환 인터페이스 |
 
-### 모드 전환
+### 🔄 모드 전환
 
 `App.tsx`에서 `startSimulator()`를 호출하면 클라이언트 모드로 동작한다. 페이지 컴포넌트는 `api` 객체를 `@/lib/simulator`에서 임포트하여 동일한 인터페이스로 데이터에 접근한다.
 
@@ -253,9 +253,9 @@ useEffect(() => {
 
 ---
 
-## 컴포넌트 책임 매트릭스
+## 📋 컴포넌트 책임 매트릭스
 
-| 컴포넌트 | 데이터 소스 (스토어) | 주요 동작 |
+| 🧩 컴포넌트 | 📊 데이터 소스 (스토어) | ⚙️ 주요 동작 |
 |----------|---------------------|-----------|
 | `OverallRiskCard` | `riskState` | SVG 게이지 렌더링, 점수 애니메이션 |
 | `SensorMetricCard` | `sensorData` | 6종 센서 카드, 임계치 색상 |
@@ -272,9 +272,9 @@ useEffect(() => {
 
 ---
 
-## 빌드 설정
+## ⚙️ 빌드 설정
 
-### Vite 설정
+### ⚙️ Vite 설정
 
 ```typescript
 // vite.config.ts
@@ -293,7 +293,7 @@ export default defineConfig({
 })
 ```
 
-### 빌드 명령
+### 💻 빌드 명령
 
 ```bash
 npm run build   # tsc -b && vite build → dist/ 생성

@@ -1,10 +1,10 @@
-# 데이터 모델
+# 🗄️ 데이터 모델
 
 SQLModel 기반 ORM으로 SQLite에 저장한다. 5개의 테이블이 구역(Zone)을 중심으로 관계를 형성한다.
 
 ---
 
-## ER 다이어그램
+## 🗺️ ER 다이어그램
 
 ```mermaid
 erDiagram
@@ -64,13 +64,13 @@ erDiagram
 
 ---
 
-## 테이블 상세
+## 📋 테이블 상세
 
-### Zone
+### 🗺️ Zone
 
 구역 마스터 테이블이다. 다른 모든 테이블이 `zone_id`로 참조한다.
 
-| 필드 | 타입 | 제약조건 | 설명 |
+| 📋 필드 | ⚙️ 타입 | 📌 제약조건 | 📝 설명 |
 |------|------|----------|------|
 | `id` | `int` | PK, 자동 증가 | 내부 식별자 |
 | `name` | `string` | UNIQUE, INDEX | 구역 식별자 (`paint-tank-a` 등) |
@@ -78,9 +78,9 @@ erDiagram
 | `status` | `string` | INDEX, default=`SAFE` | 현재 위험 상태 |
 | `location_label` | `string` | - | 표시용 위치 (`Dock 1 / Paint Tank A`) |
 
-**기본 시드 데이터**
+**📋 기본 시드 데이터**
 
-| name | type | status | location_label |
+| 🏷️ name | 📋 type | 🚨 status | 📍 location_label |
 |------|------|--------|----------------|
 | `paint-tank-a` | `paint_tank` | `SAFE` | Dock 1 / Paint Tank A |
 | `cargo-hold-b` | `cargo_hold` | `SAFE` | Dock 2 / Cargo Hold B |
@@ -88,11 +88,11 @@ erDiagram
 
 ---
 
-### SensorReading
+### 📊 SensorReading
 
 센서 측정값 저장 테이블이다. 2초 간격으로 구역별 INSERT된다.
 
-| 필드 | 타입 | 제약조건 | 단위 | 설명 |
+| 📋 필드 | ⚙️ 타입 | 📌 제약조건 | 📏 단위 | 📝 설명 |
 |------|------|----------|------|------|
 | `id` | `int` | PK | - | 자동 증가 |
 | `zone_id` | `int` | FK→Zone.id, INDEX | - | 구역 참조 |
@@ -109,11 +109,11 @@ erDiagram
 
 ---
 
-### RiskState
+### ⚠️ RiskState
 
 위험 평가 결과 저장 테이블이다. 매 센서 갱신마다 INSERT된다.
 
-| 필드 | 타입 | 제약조건 | 설명 |
+| 📋 필드 | ⚙️ 타입 | 📌 제약조건 | 📝 설명 |
 |------|------|----------|------|
 | `id` | `int` | PK | 자동 증가 |
 | `zone_id` | `int` | FK→Zone.id, INDEX | 구역 참조 |
@@ -124,11 +124,11 @@ erDiagram
 
 ---
 
-### EventLog
+### 📝 EventLog
 
 시스템 이벤트 기록 테이블이다. 상태 변화나 시나리오 활성화 시 INSERT된다.
 
-| 필드 | 타입 | 제약조건 | 설명 |
+| 📋 필드 | ⚙️ 타입 | 📌 제약조건 | 📝 설명 |
 |------|------|----------|------|
 | `id` | `int` | PK | 자동 증가 |
 | `zone_id` | `int` | FK→Zone.id, INDEX | 구역 참조 |
@@ -138,9 +138,9 @@ erDiagram
 | `message` | `string` | - | 상세 메시지 |
 | `source` | `string` | - | 발생 출처 |
 
-**event_type 값**
+**📋 event_type 값**
 
-| event_type | 발생 조건 | source |
+| 🏷️ event_type | ⚠️ 발생 조건 | 📍 source |
 |------------|-----------|--------|
 | `risk_threshold_exceeded` | WARNING/CRITICAL 상태 전환 시 | `risk_engine` |
 | `scenario_oxygen_drop` | oxygen_drop 시나리오 활성화 | `demo_simulator` |
@@ -150,11 +150,11 @@ erDiagram
 
 ---
 
-### WorkerState
+### 🎥 WorkerState
 
 작업자 상태 저장 테이블이다. 매 센서 루프에서 갱신된다.
 
-| 필드 | 타입 | 제약조건 | 설명 |
+| 📋 필드 | ⚙️ 타입 | 📌 제약조건 | 📝 설명 |
 |------|------|----------|------|
 | `id` | `int` | PK | 자동 증가 |
 | `zone_id` | `int` | FK→Zone.id, INDEX | 구역 참조 |
@@ -165,11 +165,11 @@ erDiagram
 
 ---
 
-## 인덱스 전략
+## ⚙️ 인덱스 전략
 
 모든 테이블의 `zone_id`와 `timestamp`에 인덱스가 설정되어 있다. 이는 다음 쿼리를 최적화한다:
 
-| 쿼리 패턴 | 사용 인덱스 |
+| 🔎 쿼리 패턴 | ⚙️ 사용 인덱스 |
 |-----------|------------|
 | 특정 구역의 최신 센서 조회 | `zone_id` + `timestamp` |
 | 특정 구역의 이벤트 필터링 | `zone_id` + `severity` |
@@ -179,11 +179,11 @@ erDiagram
 
 ---
 
-## 프론트엔드 타입 매핑
+## 🖥️ 프론트엔드 타입 매핑
 
 백엔드 SQLModel 테이블과 프론트엔드 TypeScript 인터페이스의 매핑이다.
 
-| 백엔드 (SQLModel) | 프론트엔드 (TypeScript) | 주요 차이 |
+| ⚙️ 백엔드 (SQLModel) | 🖥️ 프론트엔드 (TypeScript) | 📋 주요 차이 |
 |-------------------|------------------------|-----------|
 | `SensorReading` | `SensorData` | 프론트엔드에는 `zone_id` 미포함, `id` 미포함 |
 | `RiskState` | `RiskState` | 동일 구조 |

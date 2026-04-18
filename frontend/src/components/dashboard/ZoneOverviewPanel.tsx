@@ -7,7 +7,7 @@ export function ZoneOverviewPanel() {
 
   return (
     <div className="bg-surface border border-border/50 rounded-xl p-4">
-      <span className="text-xs text-slate-500 uppercase tracking-widest font-medium block mb-3">Zones</span>
+      <span className="text-xs text-slate-500 uppercase tracking-widest font-medium block mb-3">🏭 Zones</span>
       <div className="flex flex-col gap-2">
         {zones.length === 0
           ? Object.entries(ZONE_LABELS).map(([id, label]) => (

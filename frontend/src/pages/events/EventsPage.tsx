@@ -8,6 +8,14 @@ import { ZONE_LABELS } from '@/lib/constants'
 
 const SEVERITIES: (Status | 'ALL')[] = ['ALL', 'SAFE', 'CAUTION', 'WARNING', 'CRITICAL']
 
+const SEVERITY_LABELS: Record<Status | 'ALL', string> = {
+  ALL: '📋 ALL',
+  SAFE: '✅ SAFE',
+  CAUTION: '⚠️ CAUTION',
+  WARNING: '🔶 WARNING',
+  CRITICAL: '🔴 CRITICAL',
+}
+
 export function EventsPage() {
   const [severityFilter, setSeverityFilter] = useState<Status | 'ALL'>('ALL')
   const [zoneFilter, setZoneFilter] = useState<string>('ALL')
@@ -25,8 +33,8 @@ export function EventsPage() {
   return (
     <div className="flex flex-col gap-4 max-w-4xl">
       <div>
-        <h1 className="text-xl font-bold text-slate-100 tracking-tight">Event Timeline</h1>
-        <p className="text-sm text-slate-500 mt-1">{events.length} events</p>
+        <h1 className="text-xl font-bold text-slate-100 tracking-tight">📋 Event Timeline</h1>
+        <p className="text-sm text-slate-500 mt-1">🔔 {events.length} events</p>
       </div>
 
       <div className="flex items-center gap-3 flex-wrap">
@@ -41,7 +49,7 @@ export function EventsPage() {
                   : 'border-border/50 text-slate-500 hover:text-slate-300'
               }`}
             >
-              {s}
+              {SEVERITY_LABELS[s]}
             </button>
           ))}
         </div>
@@ -50,7 +58,7 @@ export function EventsPage() {
           onChange={(e) => setZoneFilter(e.target.value)}
           className="bg-surface border border-border text-slate-300 text-xs rounded px-2 py-1 focus:outline-none"
         >
-          <option value="ALL">All Zones</option>
+          <option value="ALL">🏭 All Zones</option>
           {Object.entries(ZONE_LABELS).map(([id, label]) => (
             <option key={id} value={id}>{label}</option>
           ))}
@@ -58,11 +66,11 @@ export function EventsPage() {
       </div>
 
       {isLoading ? (
-        <div className="text-xs text-slate-600">Loading events...</div>
+        <div className="text-xs text-slate-600">⏳ Loading events...</div>
       ) : (
         <div className="bg-surface border border-border/50 rounded-xl overflow-hidden">
           {events.length === 0 ? (
-            <div className="px-4 py-8 text-center text-sm text-slate-600">No events match the current filters.</div>
+             <div className="px-4 py-8 text-center text-sm text-slate-600">📭 No events match the current filters.</div>
           ) : (
             events.map((event, i) => (
               <div

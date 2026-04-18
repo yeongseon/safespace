@@ -1,12 +1,12 @@
-# API 명세
+# 🌐 API 명세
 
 SafeSpace 백엔드가 제공하는 REST API와 WebSocket 인터페이스이다. 기본 URL은 `http://localhost:8000`이다.
 
 ---
 
-## 엔드포인트 요약
+## 📡 엔드포인트 요약
 
-| 메서드 | 경로 | 설명 |
+| ⚙️ 메서드 | 📡 경로 | 📝 설명 |
 |--------|------|------|
 | GET | `/api/dashboard/summary` | 전체 대시보드 요약 |
 | GET | `/api/sensors/latest` | 최신 센서 데이터 |
@@ -19,21 +19,21 @@ SafeSpace 백엔드가 제공하는 REST API와 WebSocket 인터페이스이다.
 
 ---
 
-## REST API
+## 🌐 REST API
 
-### GET /api/dashboard/summary
+### 📊 GET /api/dashboard/summary
 
 전체 시스템 상태를 종합한 대시보드 요약이다. 모든 구역의 위험 상태를 집계하여 최고 위험 등급을 반환한다.
 
-**요청**
+**📥 요청**
 
 ```bash
 curl http://localhost:8000/api/dashboard/summary
 ```
 
-**응답 스키마**
+**📤 응답 스키마**
 
-| 필드 | 타입 | 설명 |
+| 📋 필드 | ⚙️ 타입 | 📝 설명 |
 |------|------|------|
 | `overall_status` | string | 전체 최고 위험 등급 (`SAFE` \| `CAUTION` \| `WARNING` \| `CRITICAL`) |
 | `risk_score` | float | 전체 최고 위험 점수 (0~100) |
@@ -43,7 +43,7 @@ curl http://localhost:8000/api/dashboard/summary
 | `zones` | array | 구역별 상태 목록 |
 | `websocket_clients` | int | 현재 WebSocket 연결 수 |
 
-**응답 예시**
+**🧾 응답 예시**
 
 ```json
 {
@@ -81,19 +81,19 @@ curl http://localhost:8000/api/dashboard/summary
 
 ---
 
-### GET /api/sensors/latest
+### 📊 GET /api/sensors/latest
 
 지정 구역의 최신 센서 데이터 1건을 반환한다.
 
-**쿼리 파라미터**
+**🔎 쿼리 파라미터**
 
-| 파라미터 | 타입 | 기본값 | 설명 |
+| 🔎 파라미터 | ⚙️ 타입 | 📋 기본값 | 📝 설명 |
 |----------|------|--------|------|
 | `zone_id` | int | - | 구역 ID (선택) |
 
-**응답 스키마**
+**📤 응답 스키마**
 
-| 필드 | 타입 | 단위 | 설명 |
+| 📋 필드 | ⚙️ 타입 | 📏 단위 | 📝 설명 |
 |------|------|------|------|
 | `zone_id` | string | - | 구역 식별자 |
 | `oxygen` | float | % | 산소 농도 |
@@ -104,7 +104,7 @@ curl http://localhost:8000/api/dashboard/summary
 | `humidity` | float | % | 습도 |
 | `timestamp` | string | - | ISO 8601 |
 
-**응답 예시**
+**🧾 응답 예시**
 
 ```json
 {
@@ -121,18 +121,18 @@ curl http://localhost:8000/api/dashboard/summary
 
 ---
 
-### GET /api/sensors/history
+### 📈 GET /api/sensors/history
 
 지정 기간의 센서 이력을 반환한다.
 
-**쿼리 파라미터**
+**🔎 쿼리 파라미터**
 
-| 파라미터 | 타입 | 기본값 | 설명 |
+| 🔎 파라미터 | ⚙️ 타입 | 📋 기본값 | 📝 설명 |
 |----------|------|--------|------|
 | `minutes` | int | 10 | 최근 N분간의 이력 |
 | `zone_id` | int | - | 구역 ID (선택) |
 
-**응답**: `SensorData[]` 배열 (시간순 정렬)
+**📤 응답**: `SensorData[]` 배열 (시간순 정렬)
 
 ```bash
 curl "http://localhost:8000/api/sensors/history?minutes=5"
@@ -140,21 +140,21 @@ curl "http://localhost:8000/api/sensors/history?minutes=5"
 
 ---
 
-### GET /api/events
+### 📝 GET /api/events
 
 이벤트 로그 목록을 반환한다. 최신순 정렬.
 
-**쿼리 파라미터**
+**🔎 쿼리 파라미터**
 
-| 파라미터 | 타입 | 기본값 | 설명 |
+| 🔎 파라미터 | ⚙️ 타입 | 📋 기본값 | 📝 설명 |
 |----------|------|--------|------|
 | `zone_id` | int | - | 구역 ID (선택) |
 | `severity` | string | - | 심각도 필터 (`info` \| `warning` \| `critical`) |
 | `limit` | int | 50 | 최대 반환 건수 |
 
-**응답 스키마**
+**📤 응답 스키마**
 
-| 필드 | 타입 | 설명 |
+| 📋 필드 | ⚙️ 타입 | 📝 설명 |
 |------|------|------|
 | `id` | int | 이벤트 ID |
 | `zone_id` | string | 구역 식별자 |
@@ -164,7 +164,7 @@ curl "http://localhost:8000/api/sensors/history?minutes=5"
 | `message` | string | 상세 메시지 |
 | `source` | string | 발생 출처 (`risk_engine` \| `demo_simulator`) |
 
-**응답 예시**
+**🧾 응답 예시**
 
 ```json
 [
@@ -182,11 +182,11 @@ curl "http://localhost:8000/api/sensors/history?minutes=5"
 
 ---
 
-### GET /api/zones
+### 🗺️ GET /api/zones
 
 등록된 구역 목록을 반환한다.
 
-**응답 예시**
+**🧾 응답 예시**
 
 ```json
 [
@@ -216,13 +216,13 @@ curl "http://localhost:8000/api/sensors/history?minutes=5"
 
 ---
 
-### GET /api/worker/status
+### 🎥 GET /api/worker/status
 
 현재 작업자 상태를 반환한다.
 
-**응답 스키마**
+**📤 응답 스키마**
 
-| 필드 | 타입 | 설명 |
+| 📋 필드 | ⚙️ 타입 | 📝 설명 |
 |------|------|------|
 | `zone_id` | string | 구역 식별자 |
 | `worker_status` | string | `normal` \| `inactive` \| `fall_suspected` \| `no_motion` |
@@ -230,7 +230,7 @@ curl "http://localhost:8000/api/sensors/history?minutes=5"
 | `last_motion_seconds` | float | 마지막 움직임 후 경과 시간 (초) |
 | `timestamp` | string | ISO 8601 |
 
-**응답 예시**
+**🧾 응답 예시**
 
 ```json
 {
@@ -244,11 +244,11 @@ curl "http://localhost:8000/api/sensors/history?minutes=5"
 
 ---
 
-### POST /api/demo/scenario
+### 🎮 POST /api/demo/scenario
 
 데모 시나리오를 활성화한다. 활성화된 시나리오는 `paint-tank-a` 구역에만 적용된다.
 
-**요청 본문**
+**📥 요청 본문**
 
 ```json
 {
@@ -256,9 +256,9 @@ curl "http://localhost:8000/api/sensors/history?minutes=5"
 }
 ```
 
-**허용 값**
+**✅ 허용 값**
 
-| 시나리오 | 설명 |
+| 🎮 시나리오 | 📝 설명 |
 |----------|------|
 | `safe` | 정상 상태 복귀 |
 | `oxygen_drop` | 30초간 산소 감소 (20.8% → 16.5%) |
@@ -266,7 +266,7 @@ curl "http://localhost:8000/api/sensors/history?minutes=5"
 | `worker_collapse` | 작업자 쓰러짐 (fall_suspected, confidence 0.96) |
 | `multi_risk` | 산소 감소 + 가스 누출 + 작업자 쓰러짐 동시 발생 |
 
-**요청 예시**
+**🧾 요청 예시**
 
 ```bash
 curl -X POST http://localhost:8000/api/demo/scenario \
@@ -274,7 +274,7 @@ curl -X POST http://localhost:8000/api/demo/scenario \
   -d '{"scenario": "gas_leak"}'
 ```
 
-**응답**
+**📤 응답**
 
 ```json
 {
@@ -285,9 +285,9 @@ curl -X POST http://localhost:8000/api/demo/scenario \
 
 ---
 
-## WebSocket
+## 📡 WebSocket
 
-### 연결
+### 🔗 연결
 
 ```
 ws://localhost:8000/ws/live
@@ -295,7 +295,7 @@ ws://localhost:8000/ws/live
 
 연결 후 서버가 2초 간격으로 메시지를 브로드캐스트한다. 클라이언트는 별도 구독 요청 없이 자동으로 모든 메시지를 수신한다.
 
-### 메시지 형식
+### 📨 메시지 형식
 
 모든 메시지는 동일한 JSON 구조를 따른다.
 
@@ -306,7 +306,7 @@ ws://localhost:8000/ws/live
 }
 ```
 
-### 메시지 유형
+### 📋 메시지 유형
 
 === "sensor_update"
 
@@ -365,7 +365,7 @@ ws://localhost:8000/ws/live
     }
     ```
 
-### JavaScript 클라이언트 예시
+### 💻 JavaScript 클라이언트 예시
 
 ```javascript
 const ws = new WebSocket('ws://localhost:8000/ws/live')
@@ -389,11 +389,11 @@ ws.onmessage = (event) => {
 
 ---
 
-## 에러 응답
+## ⚠️ 에러 응답
 
 FastAPI 기본 에러 형식을 따른다.
 
-### 422 Validation Error
+### 🚨 422 Validation Error
 
 ```json
 {
@@ -408,7 +408,7 @@ FastAPI 기본 에러 형식을 따른다.
 }
 ```
 
-### 404 Not Found
+### 🔍 404 Not Found
 
 ```json
 {

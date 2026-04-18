@@ -6,6 +6,12 @@ import { MapPin } from 'lucide-react'
 import { STATUS_GLOW } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 
+const ZONE_TYPE_LABELS: Record<string, string> = {
+  paint_tank: '🚢 Paint Tank',
+  cargo_hold: '📦 Cargo Hold',
+  engine_room: '⚙️ Engine Room',
+}
+
 export function ZonesPage() {
   const setZones = useStore((s) => s.setZones)
 
@@ -21,12 +27,12 @@ export function ZonesPage() {
   return (
     <div className="flex flex-col gap-4 max-w-4xl">
       <div>
-        <h1 className="text-xl font-bold text-slate-100 tracking-tight">Zone Overview</h1>
-        <p className="text-sm text-slate-500 mt-1">{zones.length} monitored zones</p>
+        <h1 className="text-xl font-bold text-slate-100 tracking-tight">🏭 Zone Overview</h1>
+        <p className="text-sm text-slate-500 mt-1">📡 {zones.length} monitored zones</p>
       </div>
 
       {isLoading ? (
-        <div className="text-xs text-slate-600">Loading zones...</div>
+        <div className="text-xs text-slate-600">⏳ Loading zones...</div>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {zones.map((zone) => (
@@ -40,7 +46,7 @@ export function ZonesPage() {
               <div className="flex items-start justify-between">
                 <div>
                   <h3 className="text-sm font-semibold text-slate-100">{zone.name}</h3>
-                  <span className="text-xs text-slate-500 capitalize">{zone.type}</span>
+                  <span className="text-xs text-slate-500 capitalize">{ZONE_TYPE_LABELS[zone.type] ?? zone.type}</span>
                 </div>
                 <StatusBadge status={zone.status} />
               </div>

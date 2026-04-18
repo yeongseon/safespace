@@ -22,16 +22,16 @@ export const STATUS_GLOW: Record<Status, string> = {
 }
 
 export const SENSOR_RANGES = {
-  oxygen: { unit: '%', safeMin: 19.5, warnMin: 18.0, label: 'Oxygen (O₂)' },
-  h2s: { unit: 'ppm', safeMax: 5, warnMax: 10, label: 'H₂S' },
-  co: { unit: 'ppm', safeMax: 25, warnMax: 50, label: 'CO' },
-  voc: { unit: 'ppm', safeMax: 100, warnMax: 200, label: 'VOC' },
-  temperature: { unit: '°C', safeMax: 35, warnMax: 40, label: 'Temperature' },
-  humidity: { unit: '%', safeMax: 70, warnMax: 85, label: 'Humidity' },
+  oxygen: { unit: '%', safeMin: 19.5, warnMin: 18.0, label: '🫁 O₂' },
+  h2s: { unit: 'ppm', safeMax: 5, warnMax: 10, label: '☠️ H₂S' },
+  co: { unit: 'ppm', safeMax: 25, warnMax: 50, label: '💨 CO' },
+  voc: { unit: 'ppm', safeMax: 100, warnMax: 200, label: '🧪 VOC' },
+  temperature: { unit: '°C', safeMax: 35, warnMax: 40, label: '🌡️ Temperature' },
+  humidity: { unit: '%', safeMax: 70, warnMax: 85, label: '💧 Humidity' },
 }
 
 export const ZONE_LABELS: Record<string, string> = {
-  'paint-tank-a': 'Paint Tank A',
-  'cargo-hold-b': 'Cargo Hold B',
-  'engine-room-c': 'Engine Room C',
+  'paint-tank-a': '🚢 Paint Tank A',
+  'cargo-hold-b': '📦 Cargo Hold B',
+  'engine-room-c': '⚙️ Engine Room C',
 }

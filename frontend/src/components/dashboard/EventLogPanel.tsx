@@ -9,12 +9,12 @@ export function EventLogPanel() {
   return (
     <div className="bg-surface border border-border/50 rounded-xl flex flex-col min-h-0">
       <div className="px-4 py-2.5 border-b border-border/50 shrink-0">
-        <span className="text-xs text-slate-500 uppercase tracking-widest font-medium">Event Log</span>
+        <span className="text-xs text-slate-500 uppercase tracking-widest font-medium">📋 Event Log</span>
       </div>
       <div className="overflow-y-auto max-h-52 flex flex-col">
         <AnimatePresence initial={false}>
           {events.length === 0 ? (
-            <div className="px-4 py-3 text-xs text-slate-600">No events</div>
+            <div className="px-4 py-3 text-xs text-slate-600">📭 No events</div>
           ) : (
             events.map((event) => (
               <motion.div

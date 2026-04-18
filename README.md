@@ -12,11 +12,11 @@
 
 ---
 
-## 프로젝트 소개
+## 🛡️ 프로젝트 소개
 
 조선소 밀폐공간 작업 중 발생할 수 있는 산소 결핍, 유해가스 축적, 작업자 이상행동을 **실시간으로 감지**하고 관리자에게 **즉시 경고**하는 웹 기반 안전 관제 MVP.
 
-### 주요 기능
+### ✅ 주요 기능
 
 - 📊 **실시간 대시보드** — 6종 센서(O₂, H₂S, CO, VOC, 온도, 습도) 2초 간격 갱신
 - 🎯 **복합 위험 판정** — 가중 점수제 4단계 위험 등급 (SAFE → CAUTION → WARNING → CRITICAL)
@@ -27,13 +27,13 @@
 
 ---
 
-## 빠른 시작
+## 🚀 빠른 시작
 
-### GitHub Pages 데모 (설치 불필요)
+### 🎮 GitHub Pages 데모 (설치 불필요)
 
 👉 [https://yeongseon.github.io/safespace/](https://yeongseon.github.io/safespace/)
 
-### 로컬 실행
+### 💻 로컬 실행
 
 ```bash
 # 백엔드
@@ -47,9 +47,9 @@ http://localhost:5173 접속
 
 ---
 
-## 기술 스택
+## ⚙️ 기술 스택
 
-| 분류 | 기술 |
+| 📋 분류 | ⚙️ 기술 |
 |------|------|
 | **Frontend** | React 19, TypeScript 6, Vite 8, Tailwind CSS 4, Framer Motion, Recharts, Zustand |
 | **Backend** | FastAPI, SQLModel, Pydantic 2, SQLite, uvicorn |
@@ -57,7 +57,7 @@ http://localhost:5173 접속
 
 ---
 
-## 프로젝트 구조
+## 🏗️ 프로젝트 구조
 
 ```
 safespace/
@@ -69,11 +69,11 @@ safespace/
 
 ---
 
-## 문서
+## 📝 문서
 
 전체 문서는 [https://yeongseon.github.io/safespace/docs/](https://yeongseon.github.io/safespace/docs/) 에서 확인할 수 있다.
 
-| 문서 | 내용 |
+| 📝 문서 | 📋 내용 |
 |------|------|
 | [빠른 시작](https://yeongseon.github.io/safespace/docs/getting-started/) | 설치, 실행, 데모 |
 | [PRD](https://yeongseon.github.io/safespace/docs/prd/) | 제품 요구사항 |
@@ -84,6 +84,6 @@ safespace/
 
 ---
 
-## License
+## 📌 License
 
 MIT

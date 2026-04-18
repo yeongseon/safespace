@@ -22,10 +22,10 @@ export function TopBar() {
   return (
     <header className="h-12 bg-bg-deep border-b border-border flex items-center px-4 gap-4 shrink-0">
       <span className="text-slate-100 font-bold tracking-widest text-sm uppercase">
-        SafeSpace
+        🛡️ SafeSpace
       </span>
       <span className="text-xs text-slate-500 font-medium uppercase tracking-wider">
-        Confined Space Monitor
+        🏭 Confined Space Monitor
       </span>
       <div className="flex-1" />
       <select
