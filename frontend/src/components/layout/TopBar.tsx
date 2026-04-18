@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import { motion } from 'framer-motion'
+import { MapPinned } from 'lucide-react'
 import { useStore } from '@/app/store'
 import { ConnectionIndicator } from '@/components/common/ConnectionIndicator'
 import { ZONE_LABELS } from '@/lib/constants'
@@ -28,17 +30,26 @@ export function TopBar() {
         🏭 Confined Space Monitor
       </span>
       <div className="flex-1" />
-      <select
-        value={currentZoneId}
-        onChange={(e) => setCurrentZoneId(e.target.value)}
-        className="bg-surface border border-border text-slate-300 text-xs rounded px-2 py-1 focus:outline-none focus:border-safe/50"
-      >
-        {Object.entries(ZONE_LABELS).map(([id, label]) => (
-          <option key={id} value={id}>{label}</option>
-        ))}
-      </select>
+      <div className="flex items-center gap-2 rounded-lg border border-safe/20 bg-safe/5 px-2.5 py-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
+        <MapPinned size={13} className="text-safe" />
+        <select
+          value={currentZoneId}
+          onChange={(e) => setCurrentZoneId(e.target.value)}
+          className="bg-transparent border-none text-slate-200 text-xs rounded pr-1 focus:outline-none"
+        >
+          {Object.entries(ZONE_LABELS).map(([id, label]) => (
+            <option key={id} value={id} className="bg-surface text-slate-200">{label}</option>
+          ))}
+        </select>
+      </div>
       <span className="text-slate-400 text-xs font-mono tabular-nums">{timeStr}</span>
-      <ConnectionIndicator />
+      <motion.div
+        animate={{ boxShadow: ['0 0 0 rgba(34,197,94,0)', '0 0 0 6px rgba(34,197,94,0.05)', '0 0 0 rgba(34,197,94,0)'] }}
+        transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}
+        className="rounded-full border border-border/60 bg-surface/80 px-2.5 py-1"
+      >
+        <ConnectionIndicator />
+      </motion.div>
     </header>
   )
 }
