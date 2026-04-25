@@ -64,19 +64,12 @@ export function TwinCanvas({ manifest, handleRef, onReady }: Props) {
     let splatMesh: SplatMesh | null = null
 
     if (manifestRef.current.splatUrl) {
-      fetch(manifestRef.current.splatUrl, { method: 'HEAD' })
-        .then((res) => {
-          const len = Number(res.headers.get('content-length') ?? '0')
-          if (!res.ok || len < 1024) {
-            setSplatError('3D scene file not available. Sensor overlay is still active.')
-            return
-          }
-          splatMesh = new SplatMesh({ url: manifestRef.current.splatUrl })
-          scene.add(splatMesh)
-        })
-        .catch(() => {
-          setSplatError('3D scene file not available. Sensor overlay is still active.')
-        })
+      try {
+        splatMesh = new SplatMesh({ url: manifestRef.current.splatUrl })
+        scene.add(splatMesh)
+      } catch {
+        setSplatError('3D scene file not available. Sensor overlay is still active.')
+      }
     }
 
     const grid = new THREE.GridHelper(10, 20, 0x1a2744, 0x111827)
