@@ -2,8 +2,8 @@
   "version": 1,
   "zone": "paint-tank-a",
   "title": "Paint Tank A — Digital Twin",
-  "splatUrl": "./scene.spz",
-  "thumbnailUrl": "./preview.webp",
+  "splatUrl": "https://sparkjs.dev/assets/splats/forge.spz",
+  "thumbnailUrl": "",
   "defaultCamera": {
     "position": [5, 3, 5],
     "target": [0, 0, 0],

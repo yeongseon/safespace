@@ -1,7 +1,8 @@
-import { useEffect, useRef, useCallback, type MutableRefObject } from 'react'
+import { useEffect, useRef, useCallback, useState, type MutableRefObject } from 'react'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 import { SparkRenderer, SplatMesh } from '@sparkjsdev/spark'
+import { AlertTriangle } from 'lucide-react'
 import type { TwinSceneManifest } from '@/features/types'
 
 export interface TwinCanvasHandle {
@@ -17,11 +18,14 @@ interface Props {
 
 export function TwinCanvas({ manifest, handleRef, onReady }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
+  const [splatError, setSplatError] = useState<string | null>(null)
 
   const manifestRef = useRef(manifest)
   manifestRef.current = manifest
 
   const setup = useCallback((container: HTMLDivElement) => {
+    setSplatError(null)
+
     const renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true })
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
     renderer.setSize(container.clientWidth, container.clientHeight)
@@ -60,11 +64,23 @@ export function TwinCanvas({ manifest, handleRef, onReady }: Props) {
     let splatMesh: SplatMesh | null = null
 
     if (manifestRef.current.splatUrl) {
-      splatMesh = new SplatMesh({
-        url: manifestRef.current.splatUrl,
-      })
-      scene.add(splatMesh)
+      fetch(manifestRef.current.splatUrl, { method: 'HEAD' })
+        .then((res) => {
+          const len = Number(res.headers.get('content-length') ?? '0')
+          if (!res.ok || len < 1024) {
+            setSplatError('3D scene file not available. Sensor overlay is still active.')
+            return
+          }
+          splatMesh = new SplatMesh({ url: manifestRef.current.splatUrl })
+          scene.add(splatMesh)
+        })
+        .catch(() => {
+          setSplatError('3D scene file not available. Sensor overlay is still active.')
+        })
     }
+
+    const grid = new THREE.GridHelper(10, 20, 0x1a2744, 0x111827)
+    scene.add(grid)
 
     let rafId = 0
     const animate = () => {
@@ -91,6 +107,7 @@ export function TwinCanvas({ manifest, handleRef, onReady }: Props) {
         scene.remove(splatMesh)
         splatMesh.dispose()
       }
+      scene.remove(grid)
       scene.remove(spark)
       spark.dispose()
       renderer.dispose()
@@ -106,5 +123,16 @@ export function TwinCanvas({ manifest, handleRef, onReady }: Props) {
     return setup(container)
   }, [setup])
 
-  return <div ref={containerRef} className="w-full h-full" />
+  return (
+    <div ref={containerRef} className="relative w-full h-full">
+      {splatError && (
+        <div className="absolute inset-x-0 top-3 flex justify-center pointer-events-none z-10">
+          <div className="inline-flex items-center gap-2 bg-surface/90 backdrop-blur-sm border border-border/50 rounded-lg px-3 py-2 pointer-events-auto">
+            <AlertTriangle size={14} className="text-caution shrink-0" />
+            <span className="text-xs text-slate-400">{splatError}</span>
+          </div>
+        </div>
+      )}
+    </div>
+  )
 }

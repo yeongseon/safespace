@@ -2,8 +2,8 @@
   "version": 1,
   "zone": "engine-room-c",
   "title": "Engine Room C — Digital Twin",
-  "splatUrl": "./scene.spz",
-  "thumbnailUrl": "./preview.webp",
+  "splatUrl": "https://sparkjs.dev/assets/splats/butterfly.spz",
+  "thumbnailUrl": "",
   "defaultCamera": {
     "position": [4, 3, 6],
     "target": [0, 1, 0],
