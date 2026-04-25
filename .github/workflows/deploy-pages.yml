@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages
+name: Deploy Frontend + Docs to GitHub Pages
 
 on:
   push:
@@ -12,16 +12,23 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
     steps:
       - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install MkDocs
+        run: pip install mkdocs-material
+
+      - name: Build MkDocs
+        run: mkdocs build --strict
 
       - uses: actions/setup-node@v4
         with:
@@ -29,19 +36,35 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
-      - run: npm ci
-      - run: npm run build
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
 
-      - uses: actions/upload-pages-artifact@v3
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
+
+      - name: Compose deploy directory
+        run: |
+          mkdir -p deploy/docs
+          # Frontend dist → deploy root (/, /safespace/)
+          cp -r frontend/dist/* deploy/
+          # MkDocs site → deploy/docs/ (/docs/, /safespace/docs/)
+          cp -r site/* deploy/docs/
+          touch deploy/.nojekyll
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          path: frontend/dist
+          path: deploy
 
   deploy:
-    needs: build
-    runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
     steps:
-      - id: deployment
+      - name: Deploy to GitHub Pages
+        id: deployment
         uses: actions/deploy-pages@v4
