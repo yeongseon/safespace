@@ -52,7 +52,7 @@ async def lifespan(app_instance: FastAPI):
 app = FastAPI(title="SafeSpace Backend", lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:5173", "http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -110,9 +110,13 @@ def maybe_create_threshold_event(
     events: list[dict[str, object]] = []
     previous: RiskState | None = None
     risk_items = list(
-        session.exec(select(RiskState).where(RiskState.zone_id == risk_state.zone_id)).all()
+        session.exec(
+            select(RiskState)
+            .where(RiskState.zone_id == risk_state.zone_id)
+            .order_by(RiskState.timestamp.desc(), RiskState.id.desc())  # type: ignore[union-attr]
+            .limit(2)
+        ).all()
     )
-    risk_items.sort(key=lambda item: (item.timestamp, item.id or 0), reverse=True)
     if len(risk_items) > 1:
         previous = risk_items[1]
     if risk_state.overall_status in {"WARNING", "CRITICAL"} and (
@@ -157,6 +161,16 @@ async def process_zone(zone: Zone) -> None:
             worker_status=sim_state.worker_status,
             confidence=sim_state.confidence,
             last_motion_seconds=sim_state.last_motion_seconds,
+        )
+        await runtime_state.websocket_manager.broadcast(
+            "worker_update",
+            {
+                "zone_id": db_zone.name,
+                "timestamp": worker.timestamp.isoformat(),
+                "worker_status": worker.worker_status,
+                "confidence": worker.confidence,
+                "last_motion_seconds": worker.last_motion_seconds,
+            },
         )
         reading = create_sensor_reading(
             session,

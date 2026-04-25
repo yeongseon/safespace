@@ -1,10 +1,11 @@
 import { motion } from 'framer-motion'
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, Play, Clock, Map } from 'lucide-react'
+import { LayoutDashboard, Play, Clock, Map, Boxes } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const NAV_ITEMS = [
   { icon: LayoutDashboard, label: 'Dashboard', to: '/' },
+  { icon: Boxes, label: 'Twin', to: '/twin' },
   { icon: Play, label: 'Demo', to: '/demo' },
   { icon: Clock, label: 'Events', to: '/events' },
   { icon: Map, label: 'Zones', to: '/zones' },
@@ -22,6 +23,7 @@ export function Sidebar() {
           to={to}
           end={to === '/'}
           title={label}
+          aria-label={label}
           className={({ isActive }) =>
             cn(
               'w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-200 group relative overflow-hidden',

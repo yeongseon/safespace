@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { useStore } from '@/app/store'
+import { useStore, useWorstZoneRisk } from '@/app/store'
 import { StatusBadge } from '@/components/common/StatusBadge'
 import { STATUS_COLORS, STATUS_GLOW } from '@/lib/constants'
 import { cn } from '@/lib/utils'
@@ -8,7 +8,8 @@ const RADIUS = 54
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS
 
 export function OverallRiskCard() {
-  const { riskState, overallStatus } = useStore()
+  const { overallStatus } = useStore()
+  const riskState = useWorstZoneRisk()
   const score = riskState?.risk_score ?? 0
   const dashOffset = CIRCUMFERENCE - (score / 100) * CIRCUMFERENCE
   const color = STATUS_COLORS[overallStatus]

@@ -1,5 +1,10 @@
 import { create } from 'zustand'
-import type { Status, SensorData, RiskState, EventLog, WorkerState, Zone, Scenario } from '@/features/types'
+import type { Status, SensorData, RiskState, EventLog, WorkerState, Zone, Scenario, TwinSceneManifest } from '@/features/types'
+
+const MAX_HISTORY = 300
+const MAX_EVENTS = 100
+
+const STATUS_PRIORITY: Record<Status, number> = { SAFE: 0, CAUTION: 1, WARNING: 2, CRITICAL: 3 }
 
 interface SafeSpaceState {
   connectionStatus: 'connected' | 'reconnecting' | 'offline'
@@ -8,21 +13,24 @@ interface SafeSpaceState {
   currentZoneId: string
   setCurrentZoneId: (id: string) => void
 
-  sensorData: SensorData | null
-  setSensorData: (d: SensorData) => void
+  sensorByZone: Record<string, SensorData | undefined>
+  sensorHistoryByZone: Record<string, SensorData[]>
+  riskByZone: Record<string, RiskState | undefined>
+  workerByZone: Record<string, WorkerState | undefined>
+  eventsByZone: Record<string, EventLog[]>
 
-  sensorHistory: SensorData[]
-  appendSensorHistory: (d: SensorData) => void
+  upsertSensor: (zone: string, data: SensorData) => void
+  appendSensorHistory: (zone: string, data: SensorData) => void
+  upsertRisk: (zone: string, data: RiskState) => void
+  upsertWorker: (zone: string, data: WorkerState) => void
+  addEvent: (zone: string, event: EventLog) => void
 
-  riskState: RiskState | null
-  setRiskState: (r: RiskState) => void
-
-  events: EventLog[]
-  addEvent: (e: EventLog) => void
-  setEvents: (events: EventLog[]) => void
-
-  workerState: WorkerState | null
-  setWorkerState: (w: WorkerState) => void
+  twinManifestByZone: Record<string, TwinSceneManifest | undefined>
+  selectedTwinAnchorId: string | null
+  twinPanelOpen: boolean
+  setTwinManifest: (zone: string, manifest: TwinSceneManifest) => void
+  setSelectedTwinAnchorId: (id: string | null) => void
+  setTwinPanelOpen: (open: boolean) => void
 
   zones: Zone[]
   setZones: (z: Zone[]) => void
@@ -31,10 +39,7 @@ interface SafeSpaceState {
   setActiveScenario: (s: Scenario) => void
 
   overallStatus: Status
-  setOverallStatus: (s: Status) => void
 }
-
-const MAX_HISTORY = 300
 
 export const useStore = create<SafeSpaceState>((set) => ({
   connectionStatus: 'offline',
@@ -43,27 +48,68 @@ export const useStore = create<SafeSpaceState>((set) => ({
   currentZoneId: 'paint-tank-a',
   setCurrentZoneId: (currentZoneId) => set({ currentZoneId }),
 
-  sensorData: null,
-  setSensorData: (sensorData) => set({ sensorData }),
+  sensorByZone: {},
+  sensorHistoryByZone: {},
+  riskByZone: {},
+  workerByZone: {},
+  eventsByZone: {},
 
-  sensorHistory: [],
-  appendSensorHistory: (d) =>
+  upsertSensor: (zone, data) =>
     set((state) => ({
-      sensorHistory: [...state.sensorHistory.slice(-MAX_HISTORY), d],
+      sensorByZone: { ...state.sensorByZone, [zone]: data },
     })),
 
-  riskState: null,
-  setRiskState: (riskState) => set({ riskState, overallStatus: riskState.overall_status }),
+  appendSensorHistory: (zone, data) =>
+    set((state) => {
+      const prev = state.sensorHistoryByZone[zone] ?? []
+      return {
+        sensorHistoryByZone: {
+          ...state.sensorHistoryByZone,
+          [zone]: [...prev, data].slice(-MAX_HISTORY),
+        },
+      }
+    }),
 
-  events: [],
-  addEvent: (e) =>
+  upsertRisk: (zone, data) =>
+    set((state) => {
+      const nextRiskByZone = { ...state.riskByZone, [zone]: data }
+      let worst: Status = 'SAFE'
+      for (const r of Object.values(nextRiskByZone)) {
+        if (r && STATUS_PRIORITY[r.overall_status] > STATUS_PRIORITY[worst]) {
+          worst = r.overall_status
+        }
+      }
+      const nextZones = state.zones.map((z) =>
+        z.id === zone ? { ...z, status: data.overall_status } : z,
+      )
+      return { riskByZone: nextRiskByZone, overallStatus: worst, zones: nextZones }
+    }),
+
+  upsertWorker: (zone, data) =>
     set((state) => ({
-      events: [e, ...state.events].slice(0, 100),
+      workerByZone: { ...state.workerByZone, [zone]: data },
     })),
-  setEvents: (events) => set({ events }),
 
-  workerState: null,
-  setWorkerState: (workerState) => set({ workerState }),
+  addEvent: (zone, event) =>
+    set((state) => {
+      const prev = state.eventsByZone[zone] ?? []
+      return {
+        eventsByZone: {
+          ...state.eventsByZone,
+          [zone]: [event, ...prev].slice(0, MAX_EVENTS),
+        },
+      }
+    }),
+
+  twinManifestByZone: {},
+  selectedTwinAnchorId: null,
+  twinPanelOpen: false,
+  setTwinManifest: (zone, manifest) =>
+    set((state) => ({
+      twinManifestByZone: { ...state.twinManifestByZone, [zone]: manifest },
+    })),
+  setSelectedTwinAnchorId: (selectedTwinAnchorId) => set({ selectedTwinAnchorId }),
+  setTwinPanelOpen: (twinPanelOpen) => set({ twinPanelOpen }),
 
   zones: [],
   setZones: (zones) => set({ zones }),
@@ -72,5 +118,29 @@ export const useStore = create<SafeSpaceState>((set) => ({
   setActiveScenario: (activeScenario) => set({ activeScenario }),
 
   overallStatus: 'SAFE',
-  setOverallStatus: (overallStatus) => set({ overallStatus }),
 }))
+
+export const useCurrentZoneSensor = () => useStore((s) => s.sensorByZone[s.currentZoneId])
+export const useCurrentZoneRisk = () => useStore((s) => s.riskByZone[s.currentZoneId])
+export const useCurrentZoneWorker = () => useStore((s) => s.workerByZone[s.currentZoneId])
+export const useCurrentZoneEvents = () => useStore((s) => s.eventsByZone[s.currentZoneId] ?? [])
+export const useCurrentZoneHistory = () => useStore((s) => s.sensorHistoryByZone[s.currentZoneId] ?? [])
+export const useCurrentZoneManifest = () => useStore((s) => s.twinManifestByZone[s.currentZoneId])
+export const useWorstZoneRisk = () => useStore((s) => {
+  const priority: Record<Status, number> = { SAFE: 0, CAUTION: 1, WARNING: 2, CRITICAL: 3 }
+  let worst: RiskState | undefined
+  for (const r of Object.values(s.riskByZone)) {
+    if (r && (!worst || priority[r.overall_status] > priority[worst.overall_status])) {
+      worst = r
+    }
+  }
+  return worst
+})
+export const useAllEvents = () => useStore((s) => {
+  const all: EventLog[] = []
+  for (const events of Object.values(s.eventsByZone)) {
+    all.push(...events)
+  }
+  all.sort((a, b) => b.timestamp.localeCompare(a.timestamp))
+  return all.slice(0, MAX_EVENTS)
+})

@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { CalendarDays, Radar, ShieldCheck } from 'lucide-react'
-import { useStore } from '@/app/store'
-import { api } from '@/lib/simulator'
+import { useStore, useCurrentZoneSensor } from '@/app/store'
 import { SENSOR_RANGES, ZONE_LABELS } from '@/lib/constants'
 import { AlertBanner } from '@/components/dashboard/AlertBanner'
 import { OverallRiskCard } from '@/components/dashboard/OverallRiskCard'
@@ -18,23 +17,13 @@ const SENSOR_KEYS = ['oxygen', 'h2s', 'co', 'voc', 'temperature', 'humidity'] as
 
 export function DashboardPage() {
   const [now, setNow] = useState(new Date())
-  const { currentZoneId, sensorData, setSensorData, appendSensorHistory, setRiskState, setEvents, setZones, setWorkerState } = useStore()
+  const currentZoneId = useStore((s) => s.currentZoneId)
+  const sensorData = useCurrentZoneSensor()
 
   useEffect(() => {
     const timer = setInterval(() => setNow(new Date()), 1000)
     return () => clearInterval(timer)
   }, [])
-
-  useEffect(() => {
-    api.getSensorsLatest().then(setSensorData).catch(() => void 0)
-    api.getSensorHistory(10).then((h) => h.forEach(appendSensorHistory)).catch(() => void 0)
-    api.getDashboardSummary().then((s) => {
-      setRiskState({ overall_status: s.overall_status, risk_score: s.risk_score, summary: s.summary, timestamp: s.timestamp })
-    }).catch(() => void 0)
-    api.getEvents({ limit: 50 }).then(setEvents).catch(() => void 0)
-    api.getZones().then(setZones).catch(() => void 0)
-    api.getWorkerStatus().then(setWorkerState).catch(() => void 0)
-  }, [setSensorData, appendSensorHistory, setRiskState, setEvents, setZones, setWorkerState])
 
   const dateTimeLabel = useMemo(() => now.toLocaleString('ko-KR', {
     year: 'numeric',

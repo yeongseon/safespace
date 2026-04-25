@@ -1,9 +1,9 @@
 import { User, AlertTriangle } from 'lucide-react'
-import { useStore } from '@/app/store'
+import { useCurrentZoneWorker } from '@/app/store'
 import { cn } from '@/lib/utils'
 
 export function WorkerStatusCard() {
-  const workerState = useStore((s) => s.workerState)
+  const workerState = useCurrentZoneWorker()
   const isFall = workerState?.worker_status === 'fall_suspected'
   const isInactive = workerState?.worker_status === 'inactive'
 

@@ -6,6 +6,7 @@ let activeScenario: Scenario = 'safe'
 let scenarioStartedAt = Date.now()
 let eventCounter = 0
 let lastScenarioEventType = ''
+let lastThresholdStatus: Status | null = null
 
 const ZONES: Zone[] = [
   { id: 'paint-tank-a', name: 'Paint Tank A', type: 'paint_tank', status: 'SAFE', location_label: 'Dock 1 / Paint Tank A' },
@@ -100,34 +101,52 @@ function evaluateRisk(sensor: SensorData, worker: WorkerState): RiskState {
   return { overall_status: mapStatus(total), risk_score: +total.toFixed(1), summary, timestamp: sensor.timestamp }
 }
 
+function tickZone(zoneId: string, scenario: Scenario, elapsed: number) {
+  const store = useStore.getState()
+  const ts = new Date().toISOString()
+
+  const sensorBase = generateSensor(scenario, elapsed)
+  const sensor: SensorData = { ...sensorBase, timestamp: ts }
+  const worker = generateWorker(scenario, elapsed)
+  const risk = evaluateRisk(sensor, worker)
+
+  store.upsertSensor(zoneId, sensor)
+  store.appendSensorHistory(zoneId, sensor)
+  store.upsertRisk(zoneId, risk)
+  store.upsertWorker(zoneId, worker)
+
+  return risk
+}
+
 function tick() {
   const store = useStore.getState()
   const elapsed = (Date.now() - scenarioStartedAt) / 1000
   const ts = new Date().toISOString()
 
-  const sensorBase = generateSensor(activeScenario, elapsed)
-  const sensor: SensorData = { ...sensorBase, timestamp: ts }
-  const worker = generateWorker(activeScenario, elapsed)
-  const risk = evaluateRisk(sensor, worker)
+  const updatedZones: Zone[] = []
 
-  store.setSensorData(sensor)
-  store.appendSensorHistory(sensor)
-  store.setRiskState(risk)
-  store.setWorkerState(worker)
+  for (const zone of ZONES) {
+    const scenario = zone.id === 'paint-tank-a' ? activeScenario : 'safe'
+    const risk = tickZone(zone.id, scenario, elapsed)
+    updatedZones.push({ ...zone, status: risk.overall_status })
+  }
 
-  const zones = ZONES.map(z => z.id === 'paint-tank-a' ? { ...z, status: risk.overall_status } : z)
-  store.setZones(zones)
+  store.setZones(updatedZones)
 
   if (activeScenario !== 'safe') {
+    const risk = store.riskByZone['paint-tank-a']
     const evtType = `scenario_${activeScenario}`
     if (lastScenarioEventType !== evtType) {
       lastScenarioEventType = evtType
-       const evt: EventLog = { id: ++eventCounter, zone_id: 'paint-tank-a', timestamp: ts, severity: risk.overall_status, event_type: evtType, message: `Demo scenario ${activeScenario} activated`, source: 'demo_simulator' }
-      store.addEvent(evt)
+      const evt: EventLog = { id: ++eventCounter, zone_id: 'paint-tank-a', timestamp: ts, severity: risk?.overall_status ?? 'CAUTION', event_type: evtType, message: `Demo scenario ${activeScenario} activated`, source: 'demo_simulator' }
+      store.addEvent('paint-tank-a', evt)
     }
-    if (risk.overall_status === 'WARNING' || risk.overall_status === 'CRITICAL') {
+    if (risk && (risk.overall_status === 'WARNING' || risk.overall_status === 'CRITICAL') && risk.overall_status !== lastThresholdStatus) {
+      lastThresholdStatus = risk.overall_status
       const evt: EventLog = { id: ++eventCounter, zone_id: 'paint-tank-a', timestamp: ts, severity: risk.overall_status, event_type: 'risk_threshold', message: risk.summary, source: 'risk_engine' }
-      store.addEvent(evt)
+      store.addEvent('paint-tank-a', evt)
+    } else if (risk && risk.overall_status !== 'WARNING' && risk.overall_status !== 'CRITICAL') {
+      lastThresholdStatus = null
     }
   }
 }
@@ -139,6 +158,7 @@ export function startSimulator() {
   tick()
   if (intervalId) clearInterval(intervalId)
   intervalId = setInterval(tick, 2000)
+  return () => stopSimulator()
 }
 
 export function stopSimulator() {
@@ -151,30 +171,47 @@ export function stopSimulator() {
 export const api = {
   getDashboardSummary: async () => {
     const store = useStore.getState()
-    const r = store.riskState
-    return { zone_id: 'paint-tank-a', overall_status: r?.overall_status ?? 'SAFE' as Status, risk_score: r?.risk_score ?? 0, summary: r?.summary ?? '', connection_status: 'connected', timestamp: new Date().toISOString() }
+    const r = store.riskByZone[store.currentZoneId]
+    return { zone_id: store.currentZoneId, overall_status: r?.overall_status ?? 'SAFE' as Status, risk_score: r?.risk_score ?? 0, summary: r?.summary ?? '', connection_status: 'connected', timestamp: new Date().toISOString() }
   },
-  getSensorsLatest: async () => {
+  getSensorsLatest: async (zone?: string) => {
     const store = useStore.getState()
-    return store.sensorData ?? { oxygen: 20.8, h2s: 1, co: 5, voc: 80, temperature: 25, humidity: 60, timestamp: new Date().toISOString() }
+    const z = zone ?? store.currentZoneId
+    return store.sensorByZone[z] ?? { oxygen: 20.8, h2s: 1, co: 5, voc: 80, temperature: 25, humidity: 60, timestamp: new Date().toISOString() }
   },
-  getSensorHistory: async (_minutes?: number) => {
+  getSensorHistory: async (zone?: string, _minutes?: number) => {
     const store = useStore.getState()
-    return store.sensorHistory
+    const z = zone ?? store.currentZoneId
+    return store.sensorHistoryByZone[z] ?? []
   },
-  getEvents: async (_params?: { zone_id?: string; severity?: string; limit?: number }) => {
+  getEvents: async (params?: { zone?: string; severity?: string; limit?: number }) => {
     const store = useStore.getState()
-    return store.events
+    let events: EventLog[]
+    if (params?.zone) {
+      events = store.eventsByZone[params.zone] ?? []
+    } else {
+      events = []
+      for (const zoneEvents of Object.values(store.eventsByZone)) {
+        events.push(...zoneEvents)
+      }
+      events.sort((a, b) => b.timestamp.localeCompare(a.timestamp))
+    }
+    if (params?.severity) {
+      events = events.filter((e) => e.severity === params.severity)
+    }
+    return events.slice(0, params?.limit ?? 100)
   },
-  getZones: async () => ZONES,
-  getWorkerStatus: async () => {
+  getZones: async () => useStore.getState().zones,
+  getWorkerStatus: async (zone?: string) => {
     const store = useStore.getState()
-    return store.workerState ?? { worker_status: 'normal' as const, confidence: 0.98, last_motion_seconds: 1, timestamp: new Date().toISOString() }
+    const z = zone ?? store.currentZoneId
+    return store.workerByZone[z] ?? { worker_status: 'normal' as const, confidence: 0.98, last_motion_seconds: 1, timestamp: new Date().toISOString() }
   },
   runScenario: async (scenario: Scenario) => {
     activeScenario = scenario
     scenarioStartedAt = Date.now()
     lastScenarioEventType = ''
+    lastThresholdStatus = null
     tick()
     return { status: 'ok' }
   },

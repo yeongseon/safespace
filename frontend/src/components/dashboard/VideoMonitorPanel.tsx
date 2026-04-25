@@ -1,9 +1,9 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { Camera, Activity } from 'lucide-react'
-import { useStore } from '@/app/store'
+import { useCurrentZoneWorker } from '@/app/store'
 
 export function VideoMonitorPanel() {
-  const workerState = useStore((s) => s.workerState)
+  const workerState = useCurrentZoneWorker()
   const isFall = workerState?.worker_status === 'fall_suspected'
 
   return (

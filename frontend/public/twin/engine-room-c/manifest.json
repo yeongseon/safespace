@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "zone": "engine-room-c",
+  "title": "Engine Room C — Digital Twin",
+  "splatUrl": "./scene.spz",
+  "thumbnailUrl": "./preview.webp",
+  "defaultCamera": {
+    "position": [4, 3, 6],
+    "target": [0, 1, 0],
+    "fov": 65
+  },
+  "anchors": {
+    "sensors": [
+      { "id": "s-oxygen", "sensorKey": "oxygen", "label": "O₂ Sensor", "position": [2.0, 1.8, 0.8] },
+      { "id": "s-h2s", "sensorKey": "h2s", "label": "H₂S Sensor", "position": [-1.5, 1.2, 2.0] },
+      { "id": "s-co", "sensorKey": "co", "label": "CO Sensor", "position": [0.5, 2.5, -1.5] },
+      { "id": "s-voc", "sensorKey": "voc", "label": "VOC Sensor", "position": [3.0, 0.8, -0.8] },
+      { "id": "s-temp", "sensorKey": "temperature", "label": "Temp Sensor", "position": [-2.0, 2.0, -2.0] },
+      { "id": "s-humid", "sensorKey": "humidity", "label": "Humidity Sensor", "position": [0.8, 1.0, 3.0] }
+    ],
+    "worker": { "id": "w-1", "label": "Worker #1", "position": [0, 0.5, 1] },
+    "exits": [
+      { "id": "exit-main", "label": "Main Exit", "position": [4.0, 0.2, 0] },
+      { "id": "exit-aft", "label": "Aft Exit", "position": [-4.0, 0.2, 2.0] }
+    ],
+    "hotspots": [
+      { "id": "hs-engine", "type": "inspection", "label": "Main Engine Block", "position": [0, 1.5, 0] }
+    ],
+    "hazardVolumes": [
+      { "id": "hz-exhaust", "label": "Exhaust Manifold Area", "center": [1, 1, -1], "size": [1.5, 1, 1.5] }
+    ]
+  }
+}

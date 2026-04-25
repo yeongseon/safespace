@@ -52,6 +52,7 @@ nav:
       - 기술 설계: tech.md
       - 프론트엔드 구조: frontend.md
       - 백엔드 구조: backend.md
+      - 디지털 트윈: digital-twin.md
       - API 명세: api.md
       - 데이터 모델: data.md
   - 운영:

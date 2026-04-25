@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { BellRing } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { BellRing, Boxes } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
-import { api } from '@/lib/simulator'
+import { useStore } from '@/app/store'
+import { getDataSource } from '@/lib/data-source'
 import { StatusBadge } from '@/components/common/StatusBadge'
 import { formatDateTime } from '@/lib/utils'
 import type { Status } from '@/features/types'
@@ -21,13 +23,20 @@ const SEVERITY_LABELS: Record<Status | 'ALL', string> = {
 export function EventsPage() {
   const [severityFilter, setSeverityFilter] = useState<Status | 'ALL'>('ALL')
   const [zoneFilter, setZoneFilter] = useState<string>('ALL')
+  const setCurrentZoneId = useStore((s) => s.setCurrentZoneId)
+  const navigate = useNavigate()
+
+  const goToTwin = (zoneId: string) => {
+    setCurrentZoneId(zoneId)
+    navigate('/twin')
+  }
 
   const { data: events = [], isLoading } = useQuery({
     queryKey: ['events', severityFilter, zoneFilter],
     queryFn: () =>
-      api.getEvents({
+      getDataSource().getEvents({
         severity: severityFilter !== 'ALL' ? severityFilter : undefined,
-        zone_id: zoneFilter !== 'ALL' ? zoneFilter : undefined,
+        zone: zoneFilter !== 'ALL' ? zoneFilter : undefined,
         limit: 200,
       }),
   })
@@ -56,6 +65,7 @@ export function EventsPage() {
           {SEVERITIES.map((s) => (
             <button
               key={s}
+              type="button"
               onClick={() => setSeverityFilter(s)}
               className={`px-3 py-1 rounded-full text-xs font-medium border transition-all ${
                 severityFilter === s
@@ -67,7 +77,9 @@ export function EventsPage() {
             </button>
           ))}
         </div>
+        <label className="sr-only" htmlFor="zone-filter">Filter by zone</label>
         <select
+          id="zone-filter"
           value={zoneFilter}
           onChange={(e) => setZoneFilter(e.target.value)}
           className="bg-surface border border-border text-slate-300 text-xs rounded px-2 py-1 focus:outline-none"
@@ -102,6 +114,15 @@ export function EventsPage() {
                   <span className="text-xs text-slate-300">{event.message}</span>
                   <span className="text-xs text-slate-600">{ZONE_LABELS[event.zone_id] ?? event.zone_id} · {event.source}</span>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => goToTwin(event.zone_id)}
+                  className="shrink-0 text-slate-600 hover:text-safe transition-colors"
+                  title="Open Twin"
+                  aria-label={`Open Twin for ${ZONE_LABELS[event.zone_id] ?? event.zone_id}`}
+                >
+                  <Boxes size={13} />
+                </button>
               </motion.div>
             ))
           )}

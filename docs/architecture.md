@@ -216,10 +216,17 @@ graph TD
 ```mermaid
 graph TD
     ENTRY[main.tsx] --> APP[App.tsx]
+    APP --> RUNTIME[lib/runtime.ts]
     APP --> ROUTER[app/router.tsx]
-    APP --> SIM[lib/simulator.ts]
+
+    RUNTIME --> DS[lib/data-source.ts]
+    RUNTIME --> SIM[lib/simulator.ts]
+    RUNTIME --> WS_LIB[lib/websocket.ts]
+    DS --> SIM
+    DS --> API[lib/api.ts]
 
     ROUTER --> DASH[pages/DashboardPage]
+    ROUTER --> TWIN_P[pages/TwinPage<br/>lazy loading]
     ROUTER --> DEMO_P[pages/DemoPage]
     ROUTER --> EVENTS_P[pages/EventsPage]
     ROUTER --> ZONES_P[pages/ZonesPage]
@@ -233,9 +240,20 @@ graph TD
     DASH --> VIDEO[VideoMonitorPanel]
     DASH --> EVENT_LOG[EventLogPanel]
     DASH --> ACTION[ActionGuidePanel]
+    DASH --> ZONE_OV[ZoneOverviewPanel]
+
+    TWIN_P --> TWIN_CANVAS[TwinCanvas<br/>Three.js + Spark]
+    TWIN_P --> TWIN_HUD[TwinHud]
+    TWIN_P --> TWIN_LOADER[lib/twin-loader.ts]
+
+    TWIN_HUD --> TWIN_SA[TwinSensorAnchors]
+    TWIN_HUD --> TWIN_WM[TwinWorkerMarker]
+    TWIN_HUD --> TWIN_EO[TwinEventOverlay]
+    TWIN_HUD --> TWIN_LG[TwinLegend]
 
     SIM --> STORE[app/store.ts]
     STORE --> TYPES[features/types.ts]
+    TWIN_LOADER --> STORE
 
     RISK_CARD --> STORE
     SENSOR_CARD --> STORE
@@ -243,10 +261,15 @@ graph TD
     BANNER --> STORE
     VIDEO --> STORE
     EVENT_LOG --> STORE
+    TWIN_SA --> STORE
+    TWIN_WM --> STORE
+    TWIN_EO --> STORE
 
     style ENTRY fill:#f96
     style STORE fill:#9f6
     style SIM fill:#ff9
+    style TWIN_CANVAS fill:#69f
+    style RUNTIME fill:#f9f
 ```
 
 ---
@@ -260,42 +283,48 @@ graph LR
         SIM[Simulator<br/>Static]
     end
 
-    subgraph Store["Zustand Store"]
-        SD[sensorData]
-        SH[sensorHistory<br/>max 300]
-        RS[riskState]
-        EV[events<br/>max 100]
-        WK[workerState]
+    subgraph Store["Zustand Store (구역별 맵)"]
+        SBZ[sensorByZone]
+        SHZ[sensorHistoryByZone<br/>구역별 max 300]
+        RBZ[riskByZone]
+        EBZ[eventsByZone<br/>구역별 max 100]
+        WBZ[workerByZone]
         ZN[zones]
+        TMZ[twinManifestByZone]
         CS[connectionStatus]
-        OS[overallStatus]
+        OS[overallStatus<br/>fleet-wide max]
     end
 
     subgraph Consumers["React 컴포넌트"]
-        C1[OverallRiskCard → riskState, overallStatus]
-        C2[SensorMetricCard → sensorData]
-        C3[LiveTrendChart → sensorHistory]
+        C1[OverallRiskCard → useWorstZoneRisk]
+        C2[SensorMetricCard → useCurrentZoneSensor]
+        C3[LiveTrendChart → useCurrentZoneHistory]
         C4[AlertBanner → overallStatus]
-        C5[EventLogPanel → events]
-        C6[VideoMonitorPanel → workerState]
+        C5[EventLogPanel → useCurrentZoneEvents]
+        C6[VideoMonitorPanel → useCurrentZoneWorker]
+        C7[TwinSensorAnchors → useCurrentZoneSensor]
+        C8[TwinWorkerMarker → useCurrentZoneWorker]
     end
 
-    WS --> SD
-    WS --> RS
-    WS --> EV
-    SIM --> SD
-    SIM --> SH
-    SIM --> RS
-    SIM --> EV
-    SIM --> WK
+    WS --> SBZ
+    WS --> RBZ
+    WS --> EBZ
+    WS --> WBZ
+    SIM --> SBZ
+    SIM --> SHZ
+    SIM --> RBZ
+    SIM --> EBZ
+    SIM --> WBZ
     SIM --> ZN
 
-    SD --> C2
-    SH --> C3
-    RS --> C1
+    SBZ --> C2
+    SBZ --> C7
+    SHZ --> C3
+    RBZ --> C1
     OS --> C4
-    EV --> C5
-    WK --> C6
+    EBZ --> C5
+    WBZ --> C6
+    WBZ --> C8
 ```
 
 ---
@@ -308,7 +337,7 @@ graph LR
 |--------|-----------|--------|
 | `sensor_update` | 매 2초, 구역별 | 센서 카드, 차트, 히스토리 |
 | `status_update` | 매 2초, 구역별 | 리스크 게이지, 배너, 상태 뱃지 |
-| `event_created` | 상태 전환 시 | 이벤트 로그, 조치 가이드 |
+| `event_created` | 상태 전환 시 (WARNING/CRITICAL 진입) | 이벤트 로그, 조치 가이드 |
 
 ### 이벤트 생성 조건
 
@@ -331,6 +360,7 @@ graph TD
 |-----------|------|-----------|
 | 데이터 소스 | DemoSimulator | MQTT 브릿지 → 실제 IoT 센서 |
 | 영상 분석 | 시뮬레이션 | MediaPipe Pose → WorkerState API |
+| 디지털 트윈 | 플레이스홀더 .spz | 실제 3D 스캔 데이터 + 구역 추가 |
 | 데이터베이스 | SQLite | PostgreSQL + 커넥션 풀 |
 | 알림 | UI 배너만 | WebHook → SMS/Email/Push |
 | 인증 | 없음 | FastAPI OAuth2 + JWT |

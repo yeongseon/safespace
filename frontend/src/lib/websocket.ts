@@ -3,12 +3,14 @@ import type { SensorData, RiskState, EventLog, WorkerState } from '@/features/ty
 
 let ws: WebSocket | null = null
 let reconnectTimer: ReturnType<typeof setTimeout> | null = null
+let intentionalClose = false
 
 export function connectWebSocket() {
   const store = useStore.getState()
 
-  if (ws?.readyState === WebSocket.OPEN) return
+  if (ws?.readyState === WebSocket.OPEN || ws?.readyState === WebSocket.CONNECTING) return
 
+  intentionalClose = false
   const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws'
   const host = window.location.host
   ws = new WebSocket(`${protocol}://${host}/ws/live`)
@@ -22,8 +24,12 @@ export function connectWebSocket() {
   }
 
   ws.onclose = () => {
-    store.setConnectionStatus('reconnecting')
     ws = null
+    if (intentionalClose) {
+      useStore.getState().setConnectionStatus('offline')
+      return
+    }
+    useStore.getState().setConnectionStatus('reconnecting')
     reconnectTimer = setTimeout(connectWebSocket, 3000)
   }
 
@@ -35,17 +41,24 @@ export function connectWebSocket() {
     try {
       const msg = JSON.parse(event.data)
       const { type, data } = msg
+      const s = useStore.getState()
 
       if (type === 'sensor_update') {
-        const sensor = data as SensorData
-        store.setSensorData(sensor)
-        store.appendSensorHistory(sensor)
+        const payload = data as SensorData & { zone_id?: string }
+        const zone = payload.zone_id ?? s.currentZoneId
+        s.upsertSensor(zone, payload)
+        s.appendSensorHistory(zone, payload)
       } else if (type === 'status_update') {
-        store.setRiskState(data as RiskState)
+        const payload = data as RiskState & { zone_id?: string }
+        const zone = payload.zone_id ?? s.currentZoneId
+        s.upsertRisk(zone, payload)
       } else if (type === 'event_created') {
-        store.addEvent(data as EventLog)
+        const payload = data as EventLog
+        s.addEvent(payload.zone_id, payload)
       } else if (type === 'worker_update') {
-        store.setWorkerState(data as WorkerState)
+        const payload = data as WorkerState & { zone_id?: string }
+        const zone = payload.zone_id ?? s.currentZoneId
+        s.upsertWorker(zone, payload)
       }
     } catch {
       void 0
@@ -54,6 +67,7 @@ export function connectWebSocket() {
 }
 
 export function disconnectWebSocket() {
+  intentionalClose = true
   if (reconnectTimer) {
     clearTimeout(reconnectTimer)
     reconnectTimer = null

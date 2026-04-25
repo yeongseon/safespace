@@ -1,9 +1,8 @@
-import { useQuery } from '@tanstack/react-query'
+import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useStore } from '@/app/store'
-import { api } from '@/lib/simulator'
 import { StatusBadge } from '@/components/common/StatusBadge'
-import { MapPin, Radar } from 'lucide-react'
+import { MapPin, Boxes, Radar } from 'lucide-react'
 import { STATUS_GLOW } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 
@@ -14,16 +13,14 @@ const ZONE_TYPE_LABELS: Record<string, string> = {
 }
 
 export function ZonesPage() {
-  const setZones = useStore((s) => s.setZones)
+  const zones = useStore((s) => s.zones)
+  const setCurrentZoneId = useStore((s) => s.setCurrentZoneId)
+  const navigate = useNavigate()
 
-  const { data: zones = [], isLoading } = useQuery({
-    queryKey: ['zones'],
-    queryFn: async () => {
-      const z = await api.getZones()
-      setZones(z)
-      return z
-    },
-  })
+  const goToTwin = (zoneId: string) => {
+    setCurrentZoneId(zoneId)
+    navigate('/twin')
+  }
 
   return (
     <div className="flex flex-col gap-4 max-w-4xl">
@@ -44,7 +41,7 @@ export function ZonesPage() {
         </div>
       </div>
 
-      {isLoading ? (
+      {zones.length === 0 ? (
         <div className="text-xs text-slate-600">Loading zones...</div>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -65,9 +62,19 @@ export function ZonesPage() {
                 </div>
                 <StatusBadge status={zone.status} />
               </div>
-              <div className="flex items-center gap-1.5 text-xs text-slate-500">
-                <MapPin size={11} />
-                {zone.location_label}
+              <div className="flex items-center justify-between text-xs text-slate-500">
+                <div className="flex items-center gap-1.5">
+                  <MapPin size={11} />
+                  {zone.location_label}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => goToTwin(zone.id)}
+                  className="flex items-center gap-1 text-slate-500 hover:text-safe transition-colors"
+                >
+                  <Boxes size={12} />
+                  <span>Twin</span>
+                </button>
               </div>
             </motion.div>
           ))}

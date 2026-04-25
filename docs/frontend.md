@@ -9,18 +9,20 @@ React 19 + TypeScript 기반의 실시간 산업 관제 대시보드이다. Vite
 ```
 frontend/src/
 ├── main.tsx                 # ReactDOM.createRoot 엔트리
-├── App.tsx                  # 시뮬레이터 초기화 + Router 마운트
+├── App.tsx                  # 런타임 부트스트랩 + Router 마운트
 ├── App.css                  # 앱 레벨 스타일
 ├── index.css                # 기본 CSS 리셋
 │
 ├── app/                     # 앱 인프라
-│   ├── store.ts             # Zustand 글로벌 스토어
+│   ├── store.ts             # Zustand 글로벌 스토어 (구역별 맵 구조)
 │   ├── router.tsx           # HashRouter + 라우트 정의
 │   └── providers.tsx        # React Query Provider
 │
 ├── pages/                   # 페이지 컴포넌트
 │   ├── dashboard/
 │   │   └── DashboardPage.tsx    # 메인 관제 화면
+│   ├── twin/
+│   │   └── TwinPage.tsx         # 3D 디지털 트윈 (lazy loading)
 │   ├── demo/
 │   │   └── DemoPage.tsx         # 시나리오 컨트롤 패널
 │   ├── events/
@@ -42,19 +44,30 @@ frontend/src/
 │   │   ├── WorkerStatusCard.tsx  # 작업자 상태 카드
 │   │   ├── EventLogPanel.tsx     # 이벤트 로그
 │   │   ├── ActionGuidePanel.tsx  # 조치 가이드
-│   │   └── ZoneOverviewPanel.tsx # 구역 개요
+│   │   └── ZoneOverviewPanel.tsx # 구역 개요 + Twin 이동
+│   ├── twin/
+│   │   ├── TwinCanvas.tsx        # Three.js + Spark 2.0 렌더러
+│   │   ├── TwinHud.tsx           # HUD 오버레이 합성
+│   │   ├── TwinSensorAnchors.tsx # 센서 마커 (rAF 투영)
+│   │   ├── TwinWorkerMarker.tsx  # 작업자 마커 (rAF 투영)
+│   │   ├── TwinEventOverlay.tsx  # 이벤트 토스트
+│   │   ├── TwinLegend.tsx        # 위험 등급 범례
+│   │   └── TwinLoadingState.tsx  # 로딩 스피너
 │   └── common/
 │       ├── StatusBadge.tsx       # 상태별 색상 뱃지
 │       ├── AnimatedValue.tsx     # 숫자 롤링 애니메이션
 │       └── ConnectionIndicator.tsx # 연결 상태 표시기
 │
 ├── features/                # 도메인 타입
-│   └── types.ts             # 모든 TypeScript 인터페이스
+│   └── types.ts             # 모든 TypeScript 인터페이스 (Twin 타입 포함)
 │
 ├── lib/                     # 유틸리티 & 서비스
-│   ├── simulator.ts         # 클라이언트 사이드 시뮬레이터 (GitHub Pages용)
+│   ├── runtime.ts           # 런타임 모드 판별 + bootstrapRuntime()
+│   ├── data-source.ts       # DataSource 추상화 (static/backend 팩토리)
+│   ├── simulator.ts         # 클라이언트 사이드 시뮬레이터 (다중 구역)
+│   ├── twin-loader.ts       # Twin 매니페스트 로더 + 캐싱
 │   ├── api.ts               # 백엔드 REST API 클라이언트
-│   ├── websocket.ts         # WebSocket 연결 관리
+│   ├── websocket.ts         # WebSocket 연결 관리 (구역별 라우팅)
 │   ├── utils.ts             # 공통 유틸리티 함수
 │   └── constants.ts         # 상수 정의
 │
@@ -71,16 +84,20 @@ frontend/src/
 | 경로 | 컴포넌트 | 설명 |
 |------|----------|------|
 | `/#/` | `DashboardPage` | 메인 관제 대시보드 |
+| `/#/twin` | `TwinPage` | 3D 디지털 트윈 (lazy loading) |
 | `/#/demo` | `DemoPage` | 데모 시나리오 컨트롤 |
 | `/#/events` | `EventsPage` | 이벤트 로그 전체 목록 |
 | `/#/zones` | `ZonesPage` | 구역별 상태 카드 |
 
 ```tsx
 // router.tsx
+const TwinPage = lazy(() => import('@/pages/twin/TwinPage'))
+
 <HashRouter>
   <AppShell>
     <Routes>
       <Route path="/" element={<DashboardPage />} />
+      <Route path="/twin" element={<Suspense fallback={null}><TwinPage /></Suspense>} />
       <Route path="/demo" element={<DemoPage />} />
       <Route path="/events" element={<EventsPage />} />
       <Route path="/zones" element={<ZonesPage />} />
@@ -107,47 +124,66 @@ interface SafeSpaceState {
   currentZoneId: string           // 기본값: 'paint-tank-a'
   setCurrentZoneId: (id: string) => void
 
-  // 센서 데이터
-  sensorData: SensorData | null   // 최신 1건
-  setSensorData: (d: SensorData) => void
-  sensorHistory: SensorData[]     // 최대 300건 (MAX_HISTORY)
-  appendSensorHistory: (d: SensorData) => void
+  // 구역별 센서 데이터
+  sensorByZone: Record<string, SensorData | undefined>
+  sensorHistoryByZone: Record<string, SensorData[]>  // 구역별 최대 300건
 
-  // 위험 상태
-  riskState: RiskState | null
-  setRiskState: (r: RiskState) => void
+  // 구역별 위험 상태
+  riskByZone: Record<string, RiskState | undefined>
 
-  // 이벤트 로그
-  events: EventLog[]              // 최신 100건, 역순 정렬
-  addEvent: (e: EventLog) => void
-  setEvents: (events: EventLog[]) => void
+  // 구역별 작업자 상태
+  workerByZone: Record<string, WorkerState | undefined>
 
-  // 작업자 상태
-  workerState: WorkerState | null
-  setWorkerState: (w: WorkerState) => void
+  // 구역별 이벤트 로그
+  eventsByZone: Record<string, EventLog[]>  // 구역별 최대 100건
+
+  // 구역 파라미터 뮤테이터
+  upsertSensor: (zone: string, data: SensorData) => void
+  appendSensorHistory: (zone: string, data: SensorData) => void
+  upsertRisk: (zone: string, data: RiskState) => void
+  upsertWorker: (zone: string, data: WorkerState) => void
+  addEvent: (zone: string, event: EventLog) => void
+
+  // Twin 매니페스트 캐시
+  twinManifestByZone: Record<string, TwinSceneManifest | undefined>
+  setTwinManifest: (zone: string, manifest: TwinSceneManifest) => void
 
   // 구역 목록
   zones: Zone[]
   setZones: (z: Zone[]) => void
 
   // 시나리오
-  activeScenario: Scenario        // 기본값: 'safe'
+  activeScenario: Scenario
   setActiveScenario: (s: Scenario) => void
 
-  // 전체 상태
-  overallStatus: Status           // 기본값: 'SAFE'
-  setOverallStatus: (s: Status) => void
+  // 전체 상태 (fleet-wide max)
+  overallStatus: Status           // 모든 구역 중 최고 위험 등급
 }
 ```
+
+### 셀렉터 훅
+
+`currentZoneId`를 기준으로 현재 구역의 데이터를 자동 구독하는 훅이다.
+
+| 훅 | 반환 타입 | 설명 |
+|----|-----------|------|
+| `useCurrentZoneSensor()` | `SensorData \| undefined` | 현재 구역 센서 최신값 |
+| `useCurrentZoneRisk()` | `RiskState \| undefined` | 현재 구역 위험 상태 |
+| `useCurrentZoneWorker()` | `WorkerState \| undefined` | 현재 구역 작업자 상태 |
+| `useCurrentZoneEvents()` | `EventLog[]` | 현재 구역 이벤트 목록 |
+| `useCurrentZoneHistory()` | `SensorData[]` | 현재 구역 센서 히스토리 |
+| `useCurrentZoneManifest()` | `TwinSceneManifest \| undefined` | 현재 구역 Twin 매니페스트 |
+| `useAllEvents()` | `EventLog[]` | 전체 구역 이벤트 (시간순, 최대 100건) |
 
 ### 데이터 보관 정책
 
 | 데이터 | 최대 보관 | 정책 |
 |--------|-----------|------|
-| `sensorHistory` | 300건 | FIFO — `slice(-MAX_HISTORY)` |
-| `events` | 100건 | FIFO — 새 이벤트를 앞에 추가 후 `slice(0, 100)` |
-| `sensorData` | 1건 | 항상 최신값으로 덮어쓰기 |
-| `riskState` | 1건 | 항상 최신값으로 덮어쓰기 |
+| `sensorHistoryByZone[zone]` | 구역별 300건 | FIFO — `slice(-MAX_HISTORY)` |
+| `eventsByZone[zone]` | 구역별 100건 | FIFO — 새 이벤트를 앞에 추가 후 `slice(0, 100)` |
+| `sensorByZone[zone]` | 1건 | 항상 최신값으로 덮어쓰기 |
+| `riskByZone[zone]` | 1건 | 항상 최신값으로 덮어쓰기 |
+| `twinManifestByZone[zone]` | 1건 | 페치 후 캐싱 |
 
 ---
 
@@ -214,7 +250,7 @@ interface SafeSpaceState {
  | 'worker_collapse' | 'multi_risk'
 
     export interface WSMessage {
-      type: 'sensor_update' | 'status_update' | 'event_created'
+      type: 'sensor_update' | 'status_update' | 'event_created' | 'worker_update'
       data: Record<string, unknown>
     }
     ```
@@ -223,7 +259,7 @@ interface SafeSpaceState {
 
 ## 클라이언트 사이드 시뮬레이터
 
-`lib/simulator.ts`는 GitHub Pages 정적 배포를 위해 백엔드 로직을 TypeScript로 완전히 포팅한 모듈이다.
+`lib/simulator.ts`는 GitHub Pages 정적 배포를 위해 백엔드 로직을 TypeScript로 완전히 포팅한 모듈이다. 3개 구역(`paint-tank-a`, `cargo-hold-b`, `engine-room-c`)을 동시에 시뮬레이션한다.
 
 ### 구조
 
@@ -231,24 +267,40 @@ interface SafeSpaceState {
 |------|------|
 | `startSimulator()` | 연결 상태 설정, 구역 초기화, 2초 간격 `tick()` 시작 |
 | `stopSimulator()` | 인터벌 정리 |
-| `tick()` | 센서 생성 → 작업자 생성 → 위험 평가 → 스토어 갱신 → 이벤트 생성 |
-| `generateSensor(scenario, elapsed)` | 시나리오별 센서값 생성 (백엔드 DemoSimulator 미러링) |
+| `tick()` | 3개 구역 순회 → `tickZone()` 호출 → 스토어 갱신 → 이벤트 생성 |
+| `tickZone(zoneId, scenario, elapsed)` | 구역별 센서 생성 → 작업자 생성 → 위험 평가 → 스토어 갱신 |
+| `generateSensor(scenario, elapsed)` | 시나리오별 센서값 생성 |
 | `generateWorker(scenario, elapsed)` | 시나리오별 작업자 상태 생성 |
 | `evaluateRisk(sensor, worker)` | 가중 점수 계산 (백엔드 rules.py 미러링) |
-| `api` 객체 | `getDashboardSummary`, `getSensorsLatest` 등 REST API 호환 인터페이스 |
+| `api` 객체 | `DataSource` 인터페이스 호환 — 스토어에서 라이브 데이터 반환 |
 
-### 모드 전환
+### DataSource 추상화
 
-`App.tsx`에서 `startSimulator()`를 호출하면 클라이언트 모드로 동작한다. 페이지 컴포넌트는 `api` 객체를 `@/lib/simulator`에서 임포트하여 동일한 인터페이스로 데이터에 접근한다.
+`lib/data-source.ts`에 정의된 `DataSource` 인터페이스로 static/backend 모드를 통합한다.
+
+```typescript
+interface DataSource {
+  getSensorsLatest(zone?: string): Promise<SensorData | null>
+  getSensorHistory(zone?: string, minutes?: number): Promise<SensorData[]>
+  getEvents(params?: { zone?: string; severity?: string; limit?: number }): Promise<EventLog[]>
+  getWorkerStatus(zone?: string): Promise<WorkerState | null>
+  getZones(): Promise<Zone[]>
+}
+```
+
+`initDataSource()`가 런타임 모드에 따라 `createStaticDataSource()` 또는 `createBackendDataSource()` 팩토리를 호출한다. 이후 `getDataSource()`로 싱글턴에 접근한다.
+
+### 런타임 부트스트랩
+
+`App.tsx`는 `bootstrapRuntime()`이 완료될 때까지 렌더링을 차단한다. 이를 통해 `getDataSource()` 호출 전에 DataSource가 반드시 초기화된다.
 
 ```typescript
 // App.tsx
-import { startSimulator } from '@/lib/simulator'
-
+const [ready, setReady] = useState(false)
 useEffect(() => {
-  startSimulator()
-  return () => stopSimulator()
+  bootstrapRuntime().then((fn) => { cleanup = fn; setReady(true) })
 }, [])
+if (!ready) return <div>Initializing…</div>
 ```
 
 ---
@@ -257,15 +309,20 @@ useEffect(() => {
 
 | 컴포넌트 | 데이터 소스 (스토어) | 주요 동작 |
 |----------|---------------------|-----------|
-| `OverallRiskCard` | `riskState` | SVG 게이지 렌더링, 점수 애니메이션 |
-| `SensorMetricCard` | `sensorData` | 6종 센서 카드, 임계치 색상 |
-| `LiveTrendChart` | `sensorHistory` | Recharts LineChart, 300 포인트 |
-| `AlertBanner` | `overallStatus` | 조건부 표시, AnimatePresence |
-| `VideoMonitorPanel` | `workerState` | 상태별 오버레이, confidence 표시 |
-| `WorkerStatusCard` | `workerState` | 작업자 상태 텍스트 + 뱃지 |
-| `EventLogPanel` | `events` | 역순 목록, 진입 애니메이션 |
+| `OverallRiskCard` | `useWorstZoneRisk()`, `overallStatus` | SVG 게이지 렌더링, 점수 애니메이션 |
+| `SensorMetricCard` | `useCurrentZoneSensor()` | 6종 센서 카드, 임계치 색상 |
+| `LiveTrendChart` | `useCurrentZoneHistory()` | Recharts LineChart, 60 포인트 |
+| `AlertBanner` | `useWorstZoneRisk()`, `overallStatus` | 조건부 표시, AnimatePresence |
+| `VideoMonitorPanel` | `useCurrentZoneWorker()` | 상태별 오버레이, confidence 표시 |
+| `WorkerStatusCard` | `useCurrentZoneWorker()` | 작업자 상태 텍스트 + 뱃지 |
+| `EventLogPanel` | `useCurrentZoneEvents()` | 역순 목록, 진입 애니메이션 |
 | `ActionGuidePanel` | `overallStatus` | 상태별 조치 권고 텍스트 |
-| `ZoneOverviewPanel` | `zones` | 구역 카드 목록, 상태 뱃지 |
+| `ZoneOverviewPanel` | `zones`, `currentZoneId` | 구역 목록, 상태 뱃지, Twin 이동 버튼 |
+| `TwinCanvas` | `TwinSceneManifest` (props) | Three.js + Spark 2.0 렌더링 |
+| `TwinSensorAnchors` | `useCurrentZoneSensor()` | rAF 투영 기반 센서 마커 |
+| `TwinWorkerMarker` | `useCurrentZoneWorker()` | rAF 투영 기반 작업자 마커 |
+| `TwinEventOverlay` | `useCurrentZoneEvents()` | 최근 이벤트 토스트 |
+| `TwinLegend` | 정적 | 위험 등급 색상 범례 |
 | `ConnectionIndicator` | `connectionStatus` | 녹색/노란/빨간 점 표시 |
 | `StatusBadge` | props | 상태 텍스트 + 배경 색상 |
 | `AnimatedValue` | props | 숫자 변경 시 롤링 애니메이션 |

@@ -1,10 +1,10 @@
 import { motion, AnimatePresence } from 'framer-motion'
-import { useStore } from '@/app/store'
+import { useCurrentZoneEvents } from '@/app/store'
 import { StatusBadge } from '@/components/common/StatusBadge'
 import { formatTime } from '@/lib/utils'
 
 export function EventLogPanel() {
-  const events = useStore((s) => s.events)
+  const events = useCurrentZoneEvents()
 
   return (
     <div className="bg-surface border border-border/50 rounded-xl flex flex-col min-h-0">

@@ -1,10 +1,11 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { AlertTriangle, XOctagon, Bell } from 'lucide-react'
-import { useStore } from '@/app/store'
+import { useStore, useWorstZoneRisk } from '@/app/store'
 import { formatTime } from '@/lib/utils'
 
 export function AlertBanner() {
-  const { overallStatus, riskState } = useStore()
+  const overallStatus = useStore((s) => s.overallStatus)
+  const riskState = useWorstZoneRisk()
   const visible = overallStatus === 'WARNING' || overallStatus === 'CRITICAL'
 
   return (

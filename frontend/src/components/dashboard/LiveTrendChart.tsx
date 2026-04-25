@@ -9,18 +9,17 @@ import {
   ResponsiveContainer,
   Legend,
 } from 'recharts'
-import { useStore } from '@/app/store'
+import { useCurrentZoneHistory } from '@/app/store'
 import { formatTime } from '@/lib/utils'
 
 export function LiveTrendChart() {
-  const sensorHistory = useStore((s) => s.sensorHistory)
+  const sensorHistory = useCurrentZoneHistory()
   const data = sensorHistory.slice(-60).map((d) => ({
     time: formatTime(d.timestamp),
     oxygen: d.oxygen,
     h2s: d.h2s,
     co: d.co,
     voc: d.voc,
-    temperature: d.temperature,
   }))
 
   return (
@@ -47,7 +46,7 @@ export function LiveTrendChart() {
           <YAxis
             yAxisId="right"
             orientation="right"
-            domain={[0, 60]}
+            domain={[0, 'auto']}
             tick={{ fontSize: 10, fill: '#64748b' }}
             tickLine={false}
           />
