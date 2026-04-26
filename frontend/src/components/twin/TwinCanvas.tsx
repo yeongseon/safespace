@@ -1,7 +1,8 @@
 import { useEffect, useRef, useCallback, useState, type MutableRefObject } from 'react'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
-import { SplatMesh } from '@sparkjsdev/spark'
+import { SplatMesh, SplatWorker } from '@dvt3d/splat-mesh'
+import { SpzLoader } from '3dgs-loader'
 import { AlertTriangle } from 'lucide-react'
 import type { TwinSceneManifest } from '@/features/types'
 
@@ -16,6 +17,8 @@ interface Props {
   onReady?: (handle: TwinCanvasHandle | null) => void
 }
 
+const WORKER_BASE = `${import.meta.env.BASE_URL}splat-workers/`
+
 export function TwinCanvas({ manifest, handleRef, onReady }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [splatError, setSplatError] = useState<string | null>(null)
@@ -24,7 +27,7 @@ export function TwinCanvas({ manifest, handleRef, onReady }: Props) {
   const manifestRef = useRef(manifest)
   manifestRef.current = manifest
 
-    const setup = useCallback((container: HTMLDivElement) => {
+  const setup = useCallback((container: HTMLDivElement) => {
     setSplatError(null)
     setSplatProgress(manifestRef.current.splatUrl ? 0 : null)
 
@@ -32,6 +35,7 @@ export function TwinCanvas({ manifest, handleRef, onReady }: Props) {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
     renderer.setSize(container.clientWidth, container.clientHeight)
     container.appendChild(renderer.domElement)
+    console.log('[TwinCanvas] WebGL context:', renderer.getContext() ? 'OK' : 'FAILED')
 
     const scene = new THREE.Scene()
     scene.background = new THREE.Color(0x0a0e1a)
@@ -51,8 +55,6 @@ export function TwinCanvas({ manifest, handleRef, onReady }: Props) {
     controls.dampingFactor = 0.12
     controls.update()
 
-    console.log('[TwinCanvas] WebGLRenderer created, context:', renderer.getContext() ? 'OK' : 'FAILED')
-
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.6)
     scene.add(ambientLight)
 
@@ -63,32 +65,8 @@ export function TwinCanvas({ manifest, handleRef, onReady }: Props) {
     onReady?.(handleRef.current)
 
     let splatMesh: SplatMesh | null = null
-
-    if (manifestRef.current.splatUrl) {
-      console.log('[TwinCanvas] Loading splat from:', manifestRef.current.splatUrl)
-      try {
-        splatMesh = new SplatMesh({
-          url: manifestRef.current.splatUrl,
-          onProgress: (e: ProgressEvent) => {
-            if (e.lengthComputable && e.total > 0) {
-              const pct = Math.round((e.loaded / e.total) * 100)
-              console.log(`[TwinCanvas] Splat progress: ${pct}% (${e.loaded}/${e.total})`)
-              setSplatProgress(pct)
-            }
-          },
-          onLoad: () => {
-            console.log('[TwinCanvas] Splat loaded successfully')
-            setSplatProgress(null)
-          },
-        })
-        scene.add(splatMesh)
-        console.log('[TwinCanvas] SplatMesh added to scene')
-      } catch (err) {
-        console.error('[TwinCanvas] SplatMesh creation error:', err)
-        setSplatProgress(null)
-        setSplatError('3D scene file not available. Sensor overlay is still active.')
-      }
-    }
+    let splatWorker: SplatWorker | null = null
+    let disposed = false
 
     const grid = new THREE.GridHelper(10, 20, 0x1a2744, 0x111827)
     scene.add(grid)
@@ -101,6 +79,51 @@ export function TwinCanvas({ manifest, handleRef, onReady }: Props) {
     }
     animate()
 
+    if (manifestRef.current.splatUrl) {
+      const splatUrl = manifestRef.current.splatUrl
+      console.log('[TwinCanvas] Loading splat from:', splatUrl)
+
+      ;(async () => {
+        try {
+          console.log('[TwinCanvas] Initializing SplatWorker...')
+          splatWorker = new SplatWorker(WORKER_BASE)
+          await splatWorker.init()
+          if (disposed) return
+          console.log('[TwinCanvas] SplatWorker ready')
+
+          console.log('[TwinCanvas] Fetching .spz file...')
+          const spzLoader = new SpzLoader()
+          const data = await spzLoader.loadAsAttributes(splatUrl, {
+            onProgress: (pct: number) => {
+              if (!disposed) {
+                const percent = Math.round(pct * 100)
+                console.log(`[TwinCanvas] Download progress: ${percent}%`)
+                setSplatProgress(percent)
+              }
+            },
+          })
+          if (disposed) return
+          console.log(`[TwinCanvas] Parsed ${data.numSplats} splats`)
+
+          splatMesh = new SplatMesh()
+          splatMesh.setVertexCount(data.numSplats)
+          splatMesh.attachWorker(splatWorker)
+          await splatMesh.setDataFromSpz(data)
+          if (disposed) return
+
+          scene.add(splatMesh)
+          setSplatProgress(null)
+          console.log('[TwinCanvas] SplatMesh added to scene ✓')
+        } catch (err) {
+          console.error('[TwinCanvas] Splat loading error:', err)
+          if (!disposed) {
+            setSplatProgress(null)
+            setSplatError('3D scene failed to load. Sensor overlay is still active.')
+          }
+        }
+      })()
+    }
+
     const ro = new ResizeObserver(([entry]) => {
       const { width, height } = entry.contentRect
       if (width === 0 || height === 0) return
@@ -111,12 +134,16 @@ export function TwinCanvas({ manifest, handleRef, onReady }: Props) {
     ro.observe(container)
 
     return () => {
+      disposed = true
       cancelAnimationFrame(rafId)
       ro.disconnect()
       controls.dispose()
       if (splatMesh) {
         scene.remove(splatMesh)
         splatMesh.dispose()
+      }
+      if (splatWorker) {
+        splatWorker.dispose()
       }
       scene.remove(grid)
       renderer.dispose()
