@@ -25,7 +25,7 @@ export function TwinCanvas({ manifest, handleRef, onReady }: Props) {
   const [splatProgress, setSplatProgress] = useState<number | null>(manifest.splatUrl ? 0 : null)
 
   const manifestRef = useRef(manifest)
-  manifestRef.current = manifest
+  useEffect(() => { manifestRef.current = manifest }, [manifest])
 
   const setup = useCallback((container: HTMLDivElement) => {
     setSplatError(null)
@@ -66,6 +66,7 @@ export function TwinCanvas({ manifest, handleRef, onReady }: Props) {
 
     let splatMesh: SplatMesh | null = null
     let splatWorker: SplatWorker | null = null
+    let spzLoader: SpzLoader | null = null
     let disposed = false
 
     const grid = new THREE.GridHelper(10, 20, 0x1a2744, 0x111827)
@@ -92,8 +93,9 @@ export function TwinCanvas({ manifest, handleRef, onReady }: Props) {
           console.log('[TwinCanvas] SplatWorker ready')
 
           console.log('[TwinCanvas] Fetching .spz file...')
-          const spzLoader = new SpzLoader()
-          const data = await spzLoader.loadAsSplat(splatUrl, {
+          const spzLoader_ = new SpzLoader()
+          spzLoader = spzLoader_
+          const data = await spzLoader_.loadAsSplat(splatUrl, {
             onProgress: (pct: number) => {
               if (!disposed) {
                 const percent = Math.round(pct * 100)
@@ -147,6 +149,9 @@ export function TwinCanvas({ manifest, handleRef, onReady }: Props) {
       }
       if (splatWorker) {
         splatWorker.dispose()
+      }
+      if (spzLoader) {
+        spzLoader.dispose()
       }
       scene.remove(grid)
       renderer.dispose()
