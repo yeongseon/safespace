@@ -6,7 +6,17 @@ import { DemoPage } from '@/pages/demo/DemoPage'
 import { EventsPage } from '@/pages/events/EventsPage'
 import { ZonesPage } from '@/pages/zones/ZonesPage'
 
-const TwinPage = lazy(() => import('@/pages/twin/TwinPage'))
+const twinImport = () => import('@/pages/twin/TwinPage')
+const TwinPage = lazy(twinImport)
+
+// Prefetch TwinPage chunk during idle time so it's cached when user navigates
+if (typeof window !== 'undefined') {
+  if ('requestIdleCallback' in window) {
+    window.requestIdleCallback(() => { twinImport() })
+  } else {
+    setTimeout(() => { twinImport() }, 2000)
+  }
+}
 
 export function Router() {
   return (
