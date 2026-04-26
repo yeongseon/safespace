@@ -3,6 +3,7 @@ declare module '@dvt3d/splat-mesh' {
 
   export class SplatMesh extends Mesh {
     constructor()
+    worker: SplatWorker | null
     setVertexCount(count: number): this
     attachWorker(worker: SplatWorker): this
     detachWorker(): this

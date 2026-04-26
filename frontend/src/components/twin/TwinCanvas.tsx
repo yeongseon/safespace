@@ -139,7 +139,9 @@ export function TwinCanvas({ manifest, handleRef, onReady }: Props) {
       ro.disconnect()
       controls.dispose()
       if (splatMesh) {
-        splatMesh.detachWorker()
+        // Nullify worker ref before dispose to prevent unregister_positions
+        // call on already-terminated or not-yet-initialized worker
+        splatMesh.worker = null
         scene.remove(splatMesh)
         splatMesh.dispose()
       }
