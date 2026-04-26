@@ -19,12 +19,14 @@ interface Props {
 export function TwinCanvas({ manifest, handleRef, onReady }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [splatError, setSplatError] = useState<string | null>(null)
+  const [splatProgress, setSplatProgress] = useState<number | null>(manifest.splatUrl ? 0 : null)
 
   const manifestRef = useRef(manifest)
   manifestRef.current = manifest
 
-  const setup = useCallback((container: HTMLDivElement) => {
+    const setup = useCallback((container: HTMLDivElement) => {
     setSplatError(null)
+    setSplatProgress(manifestRef.current.splatUrl ? 0 : null)
 
     const renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true })
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
@@ -65,9 +67,20 @@ export function TwinCanvas({ manifest, handleRef, onReady }: Props) {
 
     if (manifestRef.current.splatUrl) {
       try {
-        splatMesh = new SplatMesh({ url: manifestRef.current.splatUrl })
+        splatMesh = new SplatMesh({
+          url: manifestRef.current.splatUrl,
+          onProgress: (e: ProgressEvent) => {
+            if (e.lengthComputable && e.total > 0) {
+              setSplatProgress(Math.round((e.loaded / e.total) * 100))
+            }
+          },
+          onLoad: () => {
+            setSplatProgress(null)
+          },
+        })
         scene.add(splatMesh)
       } catch {
+        setSplatProgress(null)
         setSplatError('3D scene file not available. Sensor overlay is still active.')
       }
     }
@@ -118,6 +131,20 @@ export function TwinCanvas({ manifest, handleRef, onReady }: Props) {
 
   return (
     <div ref={containerRef} className="relative w-full h-full">
+      {splatProgress !== null && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-bg-deep/80 backdrop-blur-sm z-20 pointer-events-none">
+          <div className="w-48 flex flex-col items-center gap-3">
+            <span className="text-xs text-slate-400">Loading 3D scene…</span>
+            <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-safe rounded-full transition-[width] duration-200 ease-out"
+                style={{ width: `${splatProgress}%` }}
+              />
+            </div>
+            <span className="text-xs text-slate-500 tabular-nums">{splatProgress}%</span>
+          </div>
+        </div>
+      )}
       {splatError && (
         <div className="absolute inset-x-0 top-3 flex justify-center pointer-events-none z-10">
           <div className="inline-flex items-center gap-2 bg-surface/90 backdrop-blur-sm border border-border/50 rounded-lg px-3 py-2 pointer-events-auto">

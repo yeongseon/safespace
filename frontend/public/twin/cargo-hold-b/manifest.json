@@ -2,7 +2,7 @@
   "version": 1,
   "zone": "cargo-hold-b",
   "title": "Cargo Hold B — Digital Twin",
-  "splatUrl": "https://sparkjs.dev/assets/splats/fireplace.spz",
+  "splatUrl": "https://sparkjs.dev/assets/splats/pedestal.spz",
   "thumbnailUrl": "",
   "defaultCamera": {
     "position": [8, 4, 8],
