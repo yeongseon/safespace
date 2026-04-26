@@ -23,11 +23,13 @@ export async function loadTwinManifest(zoneId: string): Promise<TwinSceneManifes
   const manifest: TwinSceneManifest = await res.json()
 
   // Resolve relative splatUrl to absolute
-  if (manifest.splatUrl.startsWith('./')) {
-    manifest.splatUrl = `${BASE}/${zoneId}/${manifest.splatUrl.slice(2)}`
+  if (manifest.splatUrl && !manifest.splatUrl.startsWith('http')) {
+    const rel = manifest.splatUrl.startsWith('./') ? manifest.splatUrl.slice(2) : manifest.splatUrl
+    manifest.splatUrl = `${BASE}/${zoneId}/${rel}`
   }
-  if (manifest.thumbnailUrl?.startsWith('./')) {
-    manifest.thumbnailUrl = `${BASE}/${zoneId}/${manifest.thumbnailUrl.slice(2)}`
+  if (manifest.thumbnailUrl && !manifest.thumbnailUrl.startsWith('http')) {
+    const rel = manifest.thumbnailUrl.startsWith('./') ? manifest.thumbnailUrl.slice(2) : manifest.thumbnailUrl
+    manifest.thumbnailUrl = `${BASE}/${zoneId}/${rel}`
   }
 
   useStore.getState().setTwinManifest(zoneId, manifest)

@@ -2,7 +2,7 @@
   "version": 1,
   "zone": "paint-tank-a",
   "title": "Paint Tank A — Digital Twin",
-  "splatUrl": "https://sparkjs.dev/assets/splats/robot-head.spz",
+  "splatUrl": "scene.spz",
   "thumbnailUrl": "",
   "defaultCamera": {
     "position": [5, 3, 5],

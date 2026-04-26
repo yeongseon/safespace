@@ -2,7 +2,7 @@
   "version": 1,
   "zone": "engine-room-c",
   "title": "Engine Room C — Digital Twin",
-  "splatUrl": "https://sparkjs.dev/assets/splats/penguin.spz",
+  "splatUrl": "scene.spz",
   "thumbnailUrl": "",
   "defaultCamera": {
     "position": [4, 3, 6],
