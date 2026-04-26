@@ -8,7 +8,6 @@ import { TwinLoadingState } from '@/components/twin/TwinLoadingState'
 export function TwinPage() {
   const currentZoneId = useStore((s) => s.currentZoneId)
   const manifest = useCurrentZoneManifest()
-  const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const handleRef = useRef<TwinCanvasHandle | null>(null)
   const [handle, setHandle] = useState<TwinCanvasHandle | null>(null)
@@ -18,24 +17,21 @@ export function TwinPage() {
     handleRef.current = null
     setError(null)
 
-    if (manifest) return
+    if (useStore.getState().twinManifestByZone[currentZoneId]) return
+
     let cancelled = false
-    setLoading(true)
-    setError(null)
     loadTwinManifest(currentZoneId)
       .catch((e) => { if (!cancelled) setError(String(e)) })
-      .finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
-  }, [currentZoneId, manifest])
+  }, [currentZoneId])
 
   const onCanvasReady = useCallback((h: TwinCanvasHandle | null) => {
     handleRef.current = h
     setHandle(h)
   }, [])
 
-  if (loading) return <TwinLoadingState />
   if (error) return <div className="flex items-center justify-center h-full text-critical text-sm">{error}</div>
-  if (!manifest) return <TwinLoadingState message="Preparing scene…" />
+  if (!manifest) return <TwinLoadingState />
 
   return (
     <div className="relative w-full h-full overflow-hidden bg-bg-deep">
