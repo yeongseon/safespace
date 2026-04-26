@@ -123,8 +123,10 @@ export const useStore = create<SafeSpaceState>((set) => ({
 export const useCurrentZoneSensor = () => useStore((s) => s.sensorByZone[s.currentZoneId])
 export const useCurrentZoneRisk = () => useStore((s) => s.riskByZone[s.currentZoneId])
 export const useCurrentZoneWorker = () => useStore((s) => s.workerByZone[s.currentZoneId])
-export const useCurrentZoneEvents = () => useStore((s) => s.eventsByZone[s.currentZoneId] ?? [])
-export const useCurrentZoneHistory = () => useStore((s) => s.sensorHistoryByZone[s.currentZoneId] ?? [])
+const EMPTY_EVENTS: never[] = []
+export const useCurrentZoneEvents = () => useStore((s) => s.eventsByZone[s.currentZoneId] ?? EMPTY_EVENTS)
+const EMPTY_HISTORY: never[] = []
+export const useCurrentZoneHistory = () => useStore((s) => s.sensorHistoryByZone[s.currentZoneId] ?? EMPTY_HISTORY)
 export const useCurrentZoneManifest = () => useStore((s) => s.twinManifestByZone[s.currentZoneId])
 export const useWorstZoneRisk = () => useStore((s) => {
   const priority: Record<Status, number> = { SAFE: 0, CAUTION: 1, WARNING: 2, CRITICAL: 3 }
