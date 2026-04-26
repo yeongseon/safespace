@@ -93,7 +93,7 @@ export function TwinCanvas({ manifest, handleRef, onReady }: Props) {
 
           console.log('[TwinCanvas] Fetching .spz file...')
           const spzLoader = new SpzLoader()
-          const data = await spzLoader.loadAsAttributes(splatUrl, {
+          const data = await spzLoader.loadAsSplat(splatUrl, {
             onProgress: (pct: number) => {
               if (!disposed) {
                 const percent = Math.round(pct * 100)
@@ -108,7 +108,7 @@ export function TwinCanvas({ manifest, handleRef, onReady }: Props) {
           splatMesh = new SplatMesh()
           splatMesh.setVertexCount(data.numSplats)
           splatMesh.attachWorker(splatWorker)
-          await splatMesh.setDataFromSpz(data)
+          await splatMesh.setDataFromBuffer(data.buffer)
           if (disposed) return
 
           scene.add(splatMesh)

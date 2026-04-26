@@ -40,6 +40,7 @@ declare module '3dgs-loader' {
   }
 
   export class SpzLoader {
+    loadAsSplat(url: string, options?: LoaderOptions): Promise<{ numSplats: number; buffer: ArrayBuffer }>
     loadAsAttributes(url: string, options?: LoaderOptions): Promise<SplatAttributes>
     dispose(): void
   }
