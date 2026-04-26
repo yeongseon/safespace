@@ -17,7 +17,7 @@ export function TwinPage() {
     return () => { cancelled = true }
   }, [currentZoneId])
 
-  const error = errorForZone?.zone === currentZoneId ? errorForZone.message : null
+  const error = errorForZone?.zone === currentZoneId && !manifest ? errorForZone.message : null
 
   if (error) return <div className="flex items-center justify-center h-full text-critical text-sm">{error}</div>
   if (!manifest) return <TwinLoadingState />
