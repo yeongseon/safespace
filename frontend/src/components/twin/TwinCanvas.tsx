@@ -1,7 +1,7 @@
 import { useEffect, useRef, useCallback, useState, type MutableRefObject } from 'react'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
-import { SparkRenderer, SplatMesh } from '@sparkjsdev/spark'
+import { SplatMesh } from '@sparkjsdev/spark'
 import { AlertTriangle } from 'lucide-react'
 import type { TwinSceneManifest } from '@/features/types'
 
@@ -51,8 +51,7 @@ export function TwinCanvas({ manifest, handleRef, onReady }: Props) {
     controls.dampingFactor = 0.12
     controls.update()
 
-    const spark = new SparkRenderer({ renderer })
-    scene.add(spark)
+    console.log('[TwinCanvas] WebGLRenderer created, context:', renderer.getContext() ? 'OK' : 'FAILED')
 
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.6)
     scene.add(ambientLight)
@@ -66,20 +65,26 @@ export function TwinCanvas({ manifest, handleRef, onReady }: Props) {
     let splatMesh: SplatMesh | null = null
 
     if (manifestRef.current.splatUrl) {
+      console.log('[TwinCanvas] Loading splat from:', manifestRef.current.splatUrl)
       try {
         splatMesh = new SplatMesh({
           url: manifestRef.current.splatUrl,
           onProgress: (e: ProgressEvent) => {
             if (e.lengthComputable && e.total > 0) {
-              setSplatProgress(Math.round((e.loaded / e.total) * 100))
+              const pct = Math.round((e.loaded / e.total) * 100)
+              console.log(`[TwinCanvas] Splat progress: ${pct}% (${e.loaded}/${e.total})`)
+              setSplatProgress(pct)
             }
           },
           onLoad: () => {
+            console.log('[TwinCanvas] Splat loaded successfully')
             setSplatProgress(null)
           },
         })
         scene.add(splatMesh)
-      } catch {
+        console.log('[TwinCanvas] SplatMesh added to scene')
+      } catch (err) {
+        console.error('[TwinCanvas] SplatMesh creation error:', err)
         setSplatProgress(null)
         setSplatError('3D scene file not available. Sensor overlay is still active.')
       }
@@ -92,7 +97,7 @@ export function TwinCanvas({ manifest, handleRef, onReady }: Props) {
     const animate = () => {
       rafId = requestAnimationFrame(animate)
       controls.update()
-      spark.render(scene, camera)
+      renderer.render(scene, camera)
     }
     animate()
 
@@ -114,8 +119,6 @@ export function TwinCanvas({ manifest, handleRef, onReady }: Props) {
         splatMesh.dispose()
       }
       scene.remove(grid)
-      scene.remove(spark)
-      spark.dispose()
       renderer.dispose()
       container.removeChild(renderer.domElement)
       handleRef.current = null
