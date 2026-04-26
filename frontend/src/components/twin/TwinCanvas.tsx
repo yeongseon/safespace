@@ -139,6 +139,7 @@ export function TwinCanvas({ manifest, handleRef, onReady }: Props) {
       ro.disconnect()
       controls.dispose()
       if (splatMesh) {
+        splatMesh.detachWorker()
         scene.remove(splatMesh)
         splatMesh.dispose()
       }
