@@ -45,6 +45,7 @@
 | **작업자 모니터링** | 쓰러짐(fall_suspected), 무동작(inactive) 상태 감지 및 영상 패널 경고 |
 | **즉시 경고** | WARNING/CRITICAL 발생 시 상단 배너 + 이벤트 로그 + 조치 가이드 동시 표시 |
 | **데모 시나리오** | 5가지 사전 정의된 시나리오로 즉시 시연 가능 |
+| **3D 디지털 트윈** | Spark 2.0 Gaussian Splatting 기반 3D 공간 시각화, 센서/작업자 오버레이 |
 | **정적 배포** | 백엔드 없이 GitHub Pages에서 클라이언트 사이드 시뮬레이터로 완전 동작 |
 
 ---
@@ -71,6 +72,8 @@
  | Tailwind CSS | 4.2 | 유틸리티 기반 스타일링 |
  | Framer Motion | 12.38 | 상태 전환 애니메이션 |
  | Recharts | 3.8 | 실시간 시계열 차트 |
+ | Three.js | 0.180 | 3D 렌더링 기반 |
+ | Spark 2.0 | 2.0 | Gaussian Splatting `.spz` 렌더링 |
  | Zustand | 5.0 | 글로벌 상태 관리 |
  | React Query | 5.99 | 서버 상태 관리 |
 

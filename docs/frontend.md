@@ -46,13 +46,13 @@ frontend/src/
 │   │   ├── ActionGuidePanel.tsx  # 조치 가이드
 │   │   └── ZoneOverviewPanel.tsx # 구역 개요 + Twin 이동
 │   ├── twin/
-│   │   ├── TwinCanvas.tsx        # Three.js + Spark 2.0 렌더러
+│   │   ├── TwinCanvas.tsx        # Three.js + Spark 2.0 렌더러 + 프로그래스 바
 │   │   ├── TwinHud.tsx           # HUD 오버레이 합성
 │   │   ├── TwinSensorAnchors.tsx # 센서 마커 (rAF 투영)
 │   │   ├── TwinWorkerMarker.tsx  # 작업자 마커 (rAF 투영)
 │   │   ├── TwinEventOverlay.tsx  # 이벤트 토스트
 │   │   ├── TwinLegend.tsx        # 위험 등급 범례
-│   │   └── TwinLoadingState.tsx  # 로딩 스피너
+│   │   └── TwinLoadingState.tsx  # 매니페스트 로딩 스피너
 │   └── common/
 │       ├── StatusBadge.tsx       # 상태별 색상 뱃지
 │       ├── AnimatedValue.tsx     # 숫자 롤링 애니메이션
@@ -318,7 +318,7 @@ if (!ready) return <div>Initializing…</div>
 | `EventLogPanel` | `useCurrentZoneEvents()` | 역순 목록, 진입 애니메이션 |
 | `ActionGuidePanel` | `overallStatus` | 상태별 조치 권고 텍스트 |
 | `ZoneOverviewPanel` | `zones`, `currentZoneId` | 구역 목록, 상태 뱃지, Twin 이동 버튼 |
-| `TwinCanvas` | `TwinSceneManifest` (props) | Three.js + Spark 2.0 렌더링 |
+| `TwinCanvas` | `TwinSceneManifest` (props) | Three.js + Spark 2.0 렌더링, `.spz` 다운로드 프로그래스 바 |
 | `TwinSensorAnchors` | `useCurrentZoneSensor()` | rAF 투영 기반 센서 마커 |
 | `TwinWorkerMarker` | `useCurrentZoneWorker()` | rAF 투영 기반 작업자 마커 |
 | `TwinEventOverlay` | `useCurrentZoneEvents()` | 최근 이벤트 토스트 |

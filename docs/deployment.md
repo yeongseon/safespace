@@ -160,16 +160,17 @@ SENSOR_INTERVAL=2
 SECRET_KEY=your-secret-key
 ```
 
-### CI/CD 파이프라인 (향후)
+### CI/CD 파이프라인 (GitHub Actions)
+
+`.github/workflows/deploy-pages.yml`로 자동 배포가 구성되어 있다. `main` 브랜치에 푸시하면 자동으로 빌드 및 배포된다.
 
 ```mermaid
 graph LR
     A[Push to main] --> B[GitHub Actions]
-    B --> C[Lint + Type Check]
-    C --> D[Test]
+    B --> C[npm ci --legacy-peer-deps]
+    C --> D[npm run build]
     D --> E{Pass?}
-    E -->|Yes| F[Build Frontend]
-    F --> G[Build MkDocs]
-    G --> H[Deploy to gh-pages]
-    E -->|No| I[Fail + Notify]
+    E -->|Yes| F[Upload artifact]
+    F --> G[Deploy to GitHub Pages]
+    E -->|No| H[Fail + Notify]
 ```

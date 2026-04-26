@@ -28,6 +28,9 @@
 - [x] 5가지 데모 시나리오
 - [x] WebSocket 실시간 브로드캐스트
 - [x] GitHub Pages 정적 배포 (클라이언트 시뮬레이터)
+- [x] GitHub Actions CI/CD 자동 배포
+- [x] 3D 디지털 트윈 (Spark 2.0 Gaussian Splatting)
+- [x] `.spz` 에셋 로컬 번들 + 다운로드 프로그래스 바
 - [x] MkDocs Material 문서화
 
 ---
@@ -63,7 +66,7 @@
 | 항목 | 현재 상태 | 개선 방향 |
 |------|-----------|-----------|
 | 테스트 코드 | 없음 | pytest (백엔드), Vitest (프론트엔드) 도입 |
-| CI/CD | 없음 | GitHub Actions (lint, test, build, deploy) |
+| CI/CD | GitHub Actions 자동 배포 | lint, test 단계 추가 |
 | DB 마이그레이션 | 없음 (SQLModel auto-create) | Alembic 도입 |
 | 로깅 | `print()` 기반 | structlog 또는 loguru 도입 |
 | 에러 처리 | 기본 FastAPI 에러 | 커스텀 에러 핸들러, Sentry 연동 |

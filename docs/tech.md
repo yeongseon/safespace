@@ -16,6 +16,8 @@ MVP는 **프론트엔드 중심**으로 설계한다. 백엔드는 데이터 공
 | **Tailwind CSS** | 4.2 | `@theme` 기반 디자인 토큰, 유틸리티 우선 스타일링 |
 | **Framer Motion** | 12.38 | 상태 전환 애니메이션, `AnimatePresence`로 조건부 렌더링 |
 | **Recharts** | 3.8 | React 네이티브 차트, 실시간 시계열 데이터에 적합 |
+| **Three.js** | 0.180 | 3D 렌더링 기반, Spark 2.0 peer dependency 호환 |
+| **Spark 2.0** | 2.0 | Gaussian Splatting `.spz` 렌더링 (`SparkRenderer`, `SplatMesh`) |
 | **Zustand** | 5.0 | 경량 전역 상태 관리, 보일러플레이트 최소화 |
 | **React Query** | 5.99 | 서버 상태 캐싱, 자동 재시도, 백그라운드 갱신 |
 | **React Router** | 7.14 | HashRouter로 GitHub Pages SPA 라우팅 |

@@ -360,7 +360,7 @@ graph TD
 |-----------|------|-----------|
 | 데이터 소스 | DemoSimulator | MQTT 브릿지 → 실제 IoT 센서 |
 | 영상 분석 | 시뮬레이션 | MediaPipe Pose → WorkerState API |
-| 디지털 트윈 | 플레이스홀더 .spz | 실제 3D 스캔 데이터 + 구역 추가 |
+| 디지털 트윈 | Spark JS 샘플 `.spz` (로컬 번들) | 실제 3D 스캔 데이터 + 구역 추가 |
 | 데이터베이스 | SQLite | PostgreSQL + 커넥션 풀 |
 | 알림 | UI 배너만 | WebHook → SMS/Email/Push |
 | 인증 | 없음 | FastAPI OAuth2 + JWT |

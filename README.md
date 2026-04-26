@@ -6,7 +6,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-6-3178C6?logo=typescript)](https://typescriptlang.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?logo=fastapi)](https://fastapi.tiangolo.com)
 [![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite)](https://vitejs.dev)
-[![Three.js](https://img.shields.io/badge/Three.js-0.184-000000?logo=threedotjs)](https://threejs.org)
+[![Three.js](https://img.shields.io/badge/Three.js-0.180-000000?logo=threedotjs)](https://threejs.org)
 [![Spark](https://img.shields.io/badge/Spark_2.0-Gaussian_Splatting-FF6B35)](https://spark.js.dev)
 [![SQLite](https://img.shields.io/badge/SQLite-3-003B57?logo=sqlite)](https://sqlite.org)
 
@@ -64,7 +64,7 @@ http://localhost:5173/safespace/ 접속
 | 분류 | 기술 |
 |------|------|
 | **Frontend** | React 19, TypeScript 6, Vite 8, Tailwind CSS 4, Framer Motion, Recharts, Zustand |
-| **3D / Twin** | Three.js 0.184, Spark 2.0 (Gaussian Splatting), OrbitControls |
+| **3D / Twin** | Three.js 0.180, Spark 2.0 (Gaussian Splatting), OrbitControls |
 | **Backend** | FastAPI, SQLModel, Pydantic 2, SQLite, uvicorn |
 | **Deployment** | GitHub Pages (정적 데모), GitHub Actions CI/CD, MkDocs Material (문서) |
 
