@@ -5,29 +5,29 @@
   "splatUrl": "scene.spz",
   "thumbnailUrl": "",
   "defaultCamera": {
-    "position": [4, 3, 6],
-    "target": [0, 1, 0],
+    "position": [2, 4, 6],
+    "target": [-3, 2, 0],
     "fov": 65
   },
   "anchors": {
     "sensors": [
-      { "id": "s-oxygen", "sensorKey": "oxygen", "label": "O₂ Sensor", "position": [2.0, 1.8, 0.8] },
-      { "id": "s-h2s", "sensorKey": "h2s", "label": "H₂S Sensor", "position": [-1.5, 1.2, 2.0] },
-      { "id": "s-co", "sensorKey": "co", "label": "CO Sensor", "position": [0.5, 2.5, -1.5] },
-      { "id": "s-voc", "sensorKey": "voc", "label": "VOC Sensor", "position": [3.0, 0.8, -0.8] },
-      { "id": "s-temp", "sensorKey": "temperature", "label": "Temp Sensor", "position": [-2.0, 2.0, -2.0] },
-      { "id": "s-humid", "sensorKey": "humidity", "label": "Humidity Sensor", "position": [0.8, 1.0, 3.0] }
+      { "id": "s-oxygen", "sensorKey": "oxygen", "label": "O₂ Sensor", "position": [4, 4, 3] },
+      { "id": "s-h2s", "sensorKey": "h2s", "label": "H₂S Sensor", "position": [-8, 3, 8] },
+      { "id": "s-co", "sensorKey": "co", "label": "CO Sensor", "position": [0, 6, -6] },
+      { "id": "s-voc", "sensorKey": "voc", "label": "VOC Sensor", "position": [8, 2, -4] },
+      { "id": "s-temp", "sensorKey": "temperature", "label": "Temp Sensor", "position": [-10, 5, -8] },
+      { "id": "s-humid", "sensorKey": "humidity", "label": "Humidity Sensor", "position": [-2, 3, 10] }
     ],
-    "worker": { "id": "w-1", "label": "Worker #1", "position": [0, 0.5, 1] },
+    "worker": { "id": "w-1", "label": "Worker #1", "position": [-2, 1, 1] },
     "exits": [
-      { "id": "exit-main", "label": "Main Exit", "position": [4.0, 0.2, 0] },
-      { "id": "exit-aft", "label": "Aft Exit", "position": [-4.0, 0.2, 2.0] }
+      { "id": "exit-main", "label": "Main Exit", "position": [10, 1, 1] },
+      { "id": "exit-aft", "label": "Aft Exit", "position": [-14, 1, 5] }
     ],
     "hotspots": [
-      { "id": "hs-engine", "type": "inspection", "label": "Main Engine Block", "position": [0, 1.5, 0] }
+      { "id": "hs-engine", "type": "inspection", "label": "Main Engine Block", "position": [-2, 4, 1] }
     ],
     "hazardVolumes": [
-      { "id": "hz-exhaust", "label": "Exhaust Manifold Area", "center": [1, 1, -1], "size": [1.5, 1, 1.5] }
+      { "id": "hz-exhaust", "label": "Exhaust Manifold Area", "center": [3, 3, -4], "size": [5, 3, 5] }
     ]
   }
 }

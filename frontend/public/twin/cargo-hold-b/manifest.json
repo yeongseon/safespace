@@ -5,22 +5,22 @@
   "splatUrl": "scene.spz",
   "thumbnailUrl": "",
   "defaultCamera": {
-    "position": [8, 4, 8],
-    "target": [0, 0, 0],
+    "position": [10, -6, -14],
+    "target": [10, -8, -20],
     "fov": 55
   },
   "anchors": {
     "sensors": [
-      { "id": "s-oxygen", "sensorKey": "oxygen", "label": "O₂ Sensor", "position": [3.0, 2.0, 1.0] },
-      { "id": "s-h2s", "sensorKey": "h2s", "label": "H₂S Sensor", "position": [-2.0, 1.5, 3.0] },
-      { "id": "s-co", "sensorKey": "co", "label": "CO Sensor", "position": [0, 3.0, -2.0] },
-      { "id": "s-voc", "sensorKey": "voc", "label": "VOC Sensor", "position": [4.0, 1.0, -1.0] },
-      { "id": "s-temp", "sensorKey": "temperature", "label": "Temp Sensor", "position": [-3.0, 2.5, -3.0] },
-      { "id": "s-humid", "sensorKey": "humidity", "label": "Humidity Sensor", "position": [1.0, 1.5, 4.0] }
+      { "id": "s-oxygen", "sensorKey": "oxygen", "label": "O₂ Sensor", "position": [18, -3, -10] },
+      { "id": "s-h2s", "sensorKey": "h2s", "label": "H₂S Sensor", "position": [0, -5, -8] },
+      { "id": "s-co", "sensorKey": "co", "label": "CO Sensor", "position": [10, 2, -22] },
+      { "id": "s-voc", "sensorKey": "voc", "label": "VOC Sensor", "position": [25, -8, -18] },
+      { "id": "s-temp", "sensorKey": "temperature", "label": "Temp Sensor", "position": [0, -2, -25] },
+      { "id": "s-humid", "sensorKey": "humidity", "label": "Humidity Sensor", "position": [12, -6, -5] }
     ],
-    "worker": { "id": "w-1", "label": "Worker #1", "position": [0, 0.5, 0] },
+    "worker": { "id": "w-1", "label": "Worker #1", "position": [10, -10, -16] },
     "exits": [
-      { "id": "exit-main", "label": "Main Hatch", "position": [5.0, 0.2, 0] }
+      { "id": "exit-main", "label": "Main Hatch", "position": [28, -10, -16] }
     ],
     "hotspots": [],
     "hazardVolumes": []
