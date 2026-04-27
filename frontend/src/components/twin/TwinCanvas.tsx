@@ -68,6 +68,7 @@ export function TwinCanvas({ manifest, handleRef, onReady }: Props) {
     let splatWorker: SplatWorker | null = null
     let spzLoader: SpzLoader | null = null
     let disposed = false
+    const abortCtrl = new AbortController()
 
     const grid = new THREE.GridHelper(10, 20, 0x1a2744, 0x111827)
     scene.add(grid)
@@ -85,38 +86,81 @@ export function TwinCanvas({ manifest, handleRef, onReady }: Props) {
       console.log('[TwinCanvas] Loading splat from:', splatUrl)
 
       ;(async () => {
+        const raceAbort = <T,>(p: Promise<T>): Promise<T> =>
+          abortCtrl.signal.aborted
+            ? Promise.reject(new DOMException('Aborted', 'AbortError'))
+            : Promise.race([
+                p,
+                new Promise<never>((_, reject) => {
+                  abortCtrl.signal.addEventListener('abort', () =>
+                    reject(new DOMException('Aborted', 'AbortError')),
+                    { once: true },
+                  )
+                }),
+              ])
+
         try {
           console.log('[TwinCanvas] Initializing SplatWorker...')
           splatWorker = new SplatWorker(WORKER_BASE)
-          await splatWorker.init()
+          await raceAbort(splatWorker.init())
           if (disposed) return
           console.log('[TwinCanvas] SplatWorker ready')
 
+          // Bypass loadAsSplat which doesn't support AbortSignal
           console.log('[TwinCanvas] Fetching .spz file...')
+          const response = await fetch(splatUrl, { signal: abortCtrl.signal })
+          if (disposed) return
+
+          const contentLength = Number(response.headers.get('content-length') ?? 0)
+          const reader = response.body!.getReader()
+          const chunks: Uint8Array[] = []
+          let received = 0
+
+          for (;;) {
+            const { done, value } = await reader.read()
+            if (done) break
+            if (disposed) {
+              await reader.cancel()
+              return
+            }
+            chunks.push(value)
+            received += value.byteLength
+            if (contentLength > 0) {
+              const percent = Math.round((received / contentLength) * 100)
+              console.log(`[TwinCanvas] Download progress: ${percent}%`)
+              setSplatProgress(percent)
+            }
+          }
+          if (disposed) return
+
+          const bytes = new Uint8Array(received)
+          let offset = 0
+          for (const chunk of chunks) {
+            bytes.set(chunk, offset)
+            offset += chunk.byteLength
+          }
+
           const spzLoader_ = new SpzLoader()
           spzLoader = spzLoader_
-          const data = await spzLoader_.loadAsSplat(splatUrl, {
-            onProgress: (pct: number) => {
-              if (!disposed) {
-                const percent = Math.round(pct * 100)
-                console.log(`[TwinCanvas] Download progress: ${percent}%`)
-                setSplatProgress(percent)
-              }
-            },
-          })
+          const data = await raceAbort(spzLoader_.parseAsSplat(bytes))
           if (disposed) return
           console.log(`[TwinCanvas] Parsed ${data.numSplats} splats`)
 
           splatMesh = new SplatMesh()
           splatMesh.setVertexCount(data.numSplats)
           splatMesh.attachWorker(splatWorker)
-          await splatMesh.setDataFromBuffer(data.buffer)
+          await raceAbort(splatMesh.setDataFromBuffer(data.buffer))
           if (disposed) return
 
           scene.add(splatMesh)
           setSplatProgress(null)
-          console.log('[TwinCanvas] SplatMesh added to scene ✓')
+          console.log('[TwinCanvas] SplatMesh added to scene')
         } catch (err) {
+          // Suppress abort errors — they're expected during cleanup
+          if (err instanceof DOMException && err.name === 'AbortError') {
+            console.log('[TwinCanvas] Loading aborted (zone switch or unmount)')
+            return
+          }
           console.error('[TwinCanvas] Splat loading error:', err)
           if (!disposed) {
             setSplatProgress(null)
@@ -137,6 +181,7 @@ export function TwinCanvas({ manifest, handleRef, onReady }: Props) {
 
     return () => {
       disposed = true
+      abortCtrl.abort()
       cancelAnimationFrame(rafId)
       ro.disconnect()
       controls.dispose()
